@@ -10,6 +10,7 @@ from agent_reach.channels import get_all_channels, get_channel
 from agent_reach.channels.v2ex import V2EXChannel
 from agent_reach.channels.xiaohongshu import XiaoHongShuChannel
 from agent_reach.channels.xueqiu import XueqiuChannel
+from agent_reach.channels.hackernews import HackerNewsChannel, format_hn_result
 
 
 class TestChannelRegistry:
@@ -742,3 +743,235 @@ class TestXiaoHongShuChannel:
         status, msg = XiaoHongShuChannel().check()
         assert status == "off"
         assert "xiaohongshu-cli" in msg
+
+
+class TestHackerNewsChannelBasics:
+    def test_can_handle_hn_and_algolia_urls(self):
+        ch = HackerNewsChannel()
+        assert ch.can_handle("https://news.ycombinator.com/item?id=8863")
+        assert ch.can_handle("http://hn.algolia.com/api/v1/items/8863")
+        assert not ch.can_handle("https://github.com/user/repo")
+        assert not ch.can_handle("https://reddit.com/r/Python")
+
+    def test_registered_in_all_channels(self):
+        names = [ch.name for ch in get_all_channels()]
+        assert "hackernews" in names
+
+    def test_tier_is_zero_config(self):
+        assert HackerNewsChannel().tier == 0
+
+    def test_extract_item_id_from_hn_url(self):
+        ch = HackerNewsChannel()
+        assert ch._extract_item_id("https://news.ycombinator.com/item?id=8863") == "8863"
+        assert ch._extract_item_id("http://hn.algolia.com/api/v1/items/42") == "42"
+
+    def test_extract_item_id_missing_returns_none(self):
+        ch = HackerNewsChannel()
+        assert ch._extract_item_id("https://news.ycombinator.com/newest") is None
+
+    def test_check_ok_when_api_reachable(self, monkeypatch):
+        import urllib.request
+
+        class FakeResponse:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                pass
+
+            def read(self):
+                return b'{"hits": []}'
+
+        monkeypatch.setattr(
+            urllib.request, "urlopen", lambda req, timeout=None: FakeResponse()
+        )
+        status, msg = HackerNewsChannel().check()
+        assert status == "ok"
+        assert "Public API available" in msg
+
+    def test_check_warn_when_api_unreachable(self, monkeypatch):
+        import urllib.request
+
+        def raise_error(req, timeout=None):
+            raise URLError("connection refused")
+
+        monkeypatch.setattr(urllib.request, "urlopen", raise_error)
+        status, msg = HackerNewsChannel().check()
+        assert status == "warn"
+        assert "failed" in msg
+
+    def test_search_stories_maps_fields_and_respects_limit(self, monkeypatch):
+        import agent_reach.channels.hackernews as hn
+
+        fake = {
+            "hits": [
+                {
+                    "objectID": "1",
+                    "title": "Story One",
+                    "url": "https://example.com/1",
+                    "author": "alice",
+                    "points": 100,
+                    "num_comments": 20,
+                    "created_at": "2026-01-01T00:00:00Z",
+                    "_tags": ["story"],
+                },
+                {
+                    "objectID": "2",
+                    "title": "Story Two",
+                    "url": "https://example.com/2",
+                    "author": "bob",
+                    "points": 50,
+                    "num_comments": 5,
+                    "created_at": "2026-01-02T00:00:00Z",
+                },
+            ]
+        }
+        monkeypatch.setattr(hn, "_get_json", lambda url: fake)
+        results = HackerNewsChannel().search_stories("python", limit=1)
+        assert len(results) == 1
+        first = results[0]
+        assert first["title"] == "Story One"
+        assert first["objectID"] == "1"
+        assert first["author"] == "alice"
+        assert first["points"] == 100
+        assert first["num_comments"] == 20
+        assert first["url"] == "https://example.com/1"
+        # structural noise dropped
+        assert "_tags" not in first
+
+    def test_get_item_returns_cleaned_truncated_story(self, monkeypatch):
+        import agent_reach.channels.hackernews as hn
+
+        fake_item = {
+            "id": 8863,
+            "type": "story",
+            "title": "My Story",
+            "url": "https://example.com",
+            "author": "pg",
+            "points": 200,
+            "created_at": "2026-01-01T00:00:00Z",
+            "children": [
+                {
+                    "id": 1,
+                    "type": "comment",
+                    "author": "u1",
+                    "text": "<p>great point &amp; more</p>",
+                    "created_at": "2026-01-01T01:00:00Z",
+                    "parent_id": 8863,
+                    "children": [],
+                }
+            ],
+        }
+        monkeypatch.setattr(hn, "_get_json", lambda url: fake_item)
+        result = HackerNewsChannel().get_item("8863")
+        assert result["title"] == "My Story"
+        assert result["author"] == "pg"
+        assert result["points"] == 200
+        assert len(result["comments"]) == 1
+        c = result["comments"][0]
+        assert c["author"] == "u1"
+        # HTML stripped & entities unescaped
+        assert c["text"] == "great point & more"
+        # structural noise dropped
+        assert "parent_id" not in c
+
+
+class TestFormatHNResult:
+    def test_search_mode_returns_flat_clean_list(self):
+        data = {
+            "hits": [
+                {
+                    "objectID": "1",
+                    "title": "T1",
+                    "url": "https://e.com/1",
+                    "author": "a",
+                    "points": 9,
+                    "num_comments": 3,
+                    "created_at": "2026-01-01T00:00:00Z",
+                    "story_text": "noise",
+                    "_tags": ["story"],
+                    "_highlightResult": {"junk": 1},
+                }
+            ]
+        }
+        out = format_hn_result(data)
+        assert isinstance(out, list)
+        assert out[0] == {
+            "objectID": "1",
+            "title": "T1",
+            "url": "https://e.com/1",
+            "author": "a",
+            "points": 9,
+            "num_comments": 3,
+            "created_at": "2026-01-01T00:00:00Z",
+        }
+
+    def test_read_mode_caps_top_level_comments(self):
+        children = [
+            {"type": "comment", "author": f"u{i}", "text": f"c{i}", "children": []}
+            for i in range(40)
+        ]
+        data = {"type": "story", "title": "S", "children": children}
+        out = format_hn_result(data)
+        assert len(out["comments"]) == 30
+        assert out["_truncated"] == 10
+
+    def test_read_mode_caps_children_per_node(self):
+        grandkids = [
+            {"type": "comment", "author": f"g{i}", "text": "x", "children": []}
+            for i in range(8)
+        ]
+        data = {
+            "type": "story",
+            "title": "S",
+            "children": [
+                {"type": "comment", "author": "top", "text": "t", "children": grandkids}
+            ],
+        }
+        out = format_hn_result(data)
+        top = out["comments"][0]
+        assert len(top["children"]) == 5
+        assert top["_truncated"] == 3
+
+    def test_read_mode_caps_depth(self):
+        # depth 4 deep; HN_MAX_DEPTH=3 means level 4 children are dropped.
+        level4 = {"type": "comment", "author": "d4", "text": "x", "children": []}
+        level3 = {"type": "comment", "author": "d3", "text": "x", "children": [level4]}
+        level2 = {"type": "comment", "author": "d2", "text": "x", "children": [level3]}
+        level1 = {"type": "comment", "author": "d1", "text": "x", "children": [level2]}
+        data = {"type": "story", "title": "S", "children": [level1]}
+        out = format_hn_result(data)
+        d1 = out["comments"][0]
+        d2 = d1["children"][0]
+        d3 = d2["children"][0]
+        # d3 is at depth 3: its child (d4) must be dropped but counted
+        assert "children" not in d3
+        assert d3["_truncated"] == 1
+
+    def test_read_mode_truncates_long_comment_text(self):
+        long_text = "B" * 1500
+        data = {
+            "type": "story",
+            "title": "S",
+            "children": [
+                {"type": "comment", "author": "u", "text": long_text, "children": []}
+            ],
+        }
+        out = format_hn_result(data)
+        assert len(out["comments"][0]["text"]) == 1000
+
+    def test_read_mode_strips_html_in_comments(self):
+        data = {
+            "type": "story",
+            "title": "S",
+            "children": [
+                {
+                    "type": "comment",
+                    "author": "u",
+                    "text": '<p>see <a href="x">link</a> &gt; quote</p>',
+                    "children": [],
+                }
+            ],
+        }
+        out = format_hn_result(data)
+        assert out["comments"][0]["text"] == "see link > quote"

@@ -124,3 +124,65 @@ class TestCheckUpdateRetry:
         assert result == "error"
         assert "Network timeout" in captured.out
         assert "retried 3 times" in captured.out
+
+
+class TestFormatCommand:
+    def _run_format(self, platform, stdin_text, capsys):
+        import io
+        import json as _json
+
+        with patch("sys.stdin", io.StringIO(stdin_text)):
+            with patch("sys.argv", ["agent-reach", "format", platform]):
+                main()
+        out = capsys.readouterr().out
+        return _json.loads(out)
+
+    def test_format_hn_item_returns_cleaned_story(self, capsys):
+        import json as _json
+
+        payload = _json.dumps(
+            {
+                "type": "story",
+                "title": "HN Story",
+                "url": "https://example.com",
+                "author": "pg",
+                "points": 123,
+                "created_at": "2026-01-01T00:00:00Z",
+                "children": [
+                    {
+                        "type": "comment",
+                        "author": "u1",
+                        "text": "<p>hi &amp; bye</p>",
+                        "created_at": "2026-01-01T01:00:00Z",
+                        "children": [],
+                    }
+                ],
+            }
+        )
+        result = self._run_format("hn", payload, capsys)
+        assert result["title"] == "HN Story"
+        assert result["author"] == "pg"
+        assert result["comments"][0]["text"] == "hi & bye"
+
+    def test_format_hn_search_returns_flat_list(self, capsys):
+        import json as _json
+
+        payload = _json.dumps(
+            {
+                "hits": [
+                    {
+                        "objectID": "1",
+                        "title": "T1",
+                        "url": "https://e.com/1",
+                        "author": "a",
+                        "points": 9,
+                        "num_comments": 3,
+                        "created_at": "2026-01-01T00:00:00Z",
+                    }
+                ]
+            }
+        )
+        result = self._run_format("hn", payload, capsys)
+        assert isinstance(result, list)
+        assert result[0]["title"] == "T1"
+        assert result[0]["objectID"] == "1"
