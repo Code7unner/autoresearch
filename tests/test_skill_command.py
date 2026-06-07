@@ -13,15 +13,16 @@ from agent_reach.cli import _install_skill, _uninstall_skill
 class TestSkillCommand(unittest.TestCase):
     """Test skill install and uninstall via CLI helpers."""
 
-    def test_skill_resources_include_both_locales(self):
-        """Package resources should expose both default and English skill markdown files."""
+    def test_skill_resource_is_english_only(self):
+        """Package should expose a single English SKILL.md; the Chinese variant is removed."""
         skill_dir = importlib.resources.files("agent_reach").joinpath("skill")
 
-        default_skill = skill_dir.joinpath("SKILL.md").read_text(encoding="utf-8")
-        english_skill = skill_dir.joinpath("SKILL_en.md").read_text(encoding="utf-8")
+        skill_md = skill_dir.joinpath("SKILL.md").read_text(encoding="utf-8")
+        self.assertTrue(skill_md.strip())
+        self.assertIn("Give your AI agent eyes to see the entire internet.", skill_md)
 
-        self.assertTrue(default_skill.strip())
-        self.assertTrue(english_skill.strip())
+        # The separate English locale file should no longer exist.
+        self.assertFalse(skill_dir.joinpath("SKILL_en.md").is_file())
 
     def test_install_skill_creates_skill_md(self):
         """_install_skill should create SKILL.md in the first available skill dir."""
@@ -96,8 +97,8 @@ class TestSkillCommand(unittest.TestCase):
                 content = f.read()
             self.assertIn("Agent Reach", content)
 
-    def test_install_uses_english_skill_for_english_locale(self):
-        """_install_skill should install the English skill file for English locales."""
+    def test_install_uses_english_skill_regardless_of_locale(self):
+        """_install_skill should always install the English skill, even under a non-English locale."""
         with tempfile.TemporaryDirectory() as tmpdir:
             skill_parent = os.path.join(tmpdir, ".openclaw", "skills")
             os.makedirs(skill_parent)
@@ -108,7 +109,7 @@ class TestSkillCommand(unittest.TestCase):
             ):
                 env = os.environ.copy()
                 env.pop("OPENCLAW_HOME", None)
-                env["LANG"] = "en_US.UTF-8"
+                env["LANG"] = "zh_CN.UTF-8"
                 with patch.dict(os.environ, env, clear=True):
                     _install_skill()
 
@@ -118,9 +119,9 @@ class TestSkillCommand(unittest.TestCase):
                 content = f.read()
             self.assertTrue(content.strip())
             self.assertIn("Give your AI agent eyes to see the entire internet.", content)
-            # Guard: ensure the installed file is the English skill, not a stale
-            # Chinese one (the Chinese phrase "搜推特" must be absent).
-            self.assertNotIn("搜推特", content)
+            # Guard: the full English skill is installed (this section is unique to it),
+            # proving locale no longer selects a different, compact variant.
+            self.assertIn("Server IPs may get 403", content)
             self.assertTrue(
                 os.path.exists(os.path.join(skill_parent, "agent-reach", "references"))
             )

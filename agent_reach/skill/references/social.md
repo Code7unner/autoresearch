@@ -204,6 +204,46 @@ user = ch.get_user("Livid")
 
 > **Node list**: https://www.v2ex.com/planes
 
+## Hacker News (public Algolia API)
+
+No authentication required; call the public Algolia HN API directly. Pipe the
+JSON through `agent-reach format hn` to strip noise and truncate huge comment
+threads (keeps token usage low — a 700 KB thread shrinks to ~75 KB).
+
+### Search stories
+
+```bash
+curl -s "http://hn.algolia.com/api/v1/search?query=QUERY&tags=story" | agent-reach format hn
+```
+
+### Read a story + comment thread
+
+```bash
+# item id is from the URL, e.g. https://news.ycombinator.com/item?id=8863
+curl -s "http://hn.algolia.com/api/v1/items/ITEM_ID" | agent-reach format hn
+```
+
+The cleaned read output keeps the story head (title, url, author, points) and a
+truncated comment tree (top 30 comments, ≤5 children/node, depth ≤3, text ≤1000
+chars). A `"_truncated": N` marker on any level reports how many items were hidden.
+
+### Python usage example
+
+```python
+from agent_reach.channels.hackernews import HackerNewsChannel
+
+ch = HackerNewsChannel()
+
+# Search stories
+stories = ch.search_stories("python", limit=10)
+for s in stories:
+    print(f"{s['title']} ({s['points']} pts, {s['num_comments']} comments)")
+
+# Read a story + truncated comment tree
+story = ch.get_item("8863")
+print(story["title"], "—", story["author"])
+```
+
 ## Reddit (rdt-cli)
 
 ```bash

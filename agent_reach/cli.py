@@ -105,7 +105,7 @@ def main():
 
     # ── format ──
     p_format = sub.add_parser("format", help="Clean and format platform API output")
-    p_format.add_argument("platform", choices=["xhs"], help="Platform to format (xhs)")
+    p_format.add_argument("platform", choices=["xhs", "hn"], help="Platform to format (xhs, hn)")
 
     # ── check-update ──
     sub.add_parser("check-update", help="Check for new versions and changes")
@@ -326,30 +326,11 @@ def _install_skill():
     import shutil
     import importlib.resources
 
-    def _is_english_locale(value: str) -> bool:
-        normalized = value.strip().lower()
-        return normalized.startswith("en") or normalized.startswith("english")
-
-    def _skill_resource_name() -> str:
-        locale_candidates = (
-            os.environ.get("AGENT_REACH_LANG", ""),
-            os.environ.get("LC_ALL", ""),
-            os.environ.get("LC_MESSAGES", ""),
-            os.environ.get("LANG", ""),
-        )
-        if any(_is_english_locale(candidate) for candidate in locale_candidates):
-            return "SKILL_en.md"
-        return "SKILL.md"
-
     def _read_skill_markdown(skill_pkg):
-        resource_name = _skill_resource_name()
-        try:
-            return skill_pkg.joinpath(resource_name).read_text(encoding="utf-8")
-        except FileNotFoundError:
-            return skill_pkg.joinpath("SKILL.md").read_text(encoding="utf-8")
+        return skill_pkg.joinpath("SKILL.md").read_text(encoding="utf-8")
 
     def _copy_skill_dir(target: str) -> bool:
-        """Copy entire skill directory (locale-specific SKILL.md + references/)."""
+        """Copy entire skill directory (SKILL.md + references/)."""
         try:
             # Clear existing installation
             if os.path.exists(target):
@@ -365,7 +346,7 @@ def _install_skill():
                 skill_pkg = Path(__file__).resolve().parent / "skill"
                 skill_md = _read_skill_markdown(skill_pkg)
 
-            # Copy SKILL.md using the selected locale file
+            # Copy SKILL.md (single English source)
             with open(os.path.join(target, "SKILL.md"), "w", encoding="utf-8") as f:
                 f.write(skill_md)
 
@@ -465,20 +446,24 @@ def _cmd_format(args):
     import sys
 
     if args.platform == "xhs":
-        from agent_reach.channels.xiaohongshu import format_xhs_result
+        from agent_reach.channels.xiaohongshu import format_xhs_result as formatter
+    elif args.platform == "hn":
+        from agent_reach.channels.hackernews import format_hn_result as formatter
+    else:
+        return
 
-        raw = sys.stdin.read().strip()
-        if not raw:
-            print("Error: no input on stdin", file=sys.stderr)
-            sys.exit(1)
-        try:
-            data = json.loads(raw)
-        except json.JSONDecodeError as e:
-            print(f"Error: invalid JSON: {e}", file=sys.stderr)
-            sys.exit(1)
+    raw = sys.stdin.read().strip()
+    if not raw:
+        print("Error: no input on stdin", file=sys.stderr)
+        sys.exit(1)
+    try:
+        data = json.loads(raw)
+    except json.JSONDecodeError as e:
+        print(f"Error: invalid JSON: {e}", file=sys.stderr)
+        sys.exit(1)
 
-        cleaned = format_xhs_result(data)
-        print(json.dumps(cleaned, ensure_ascii=False, indent=2))
+    cleaned = formatter(data)
+    print(json.dumps(cleaned, ensure_ascii=False, indent=2))
 
 
 def _install_system_deps():
