@@ -77,6 +77,7 @@ Update Agent Reach: https://raw.githubusercontent.com/Panniantong/agent-reach/ma
 | 📺 **Bilibili** | Read · **Search** | Zero config / Proxy | Video info + subtitles + search. Local works directly, servers need a proxy ([yt-dlp](https://github.com/yt-dlp/yt-dlp)) |
 | 📡 **RSS** | Read | Zero config | Any RSS/Atom feed ([feedparser](https://github.com/kurtmckee/feedparser) ⭐2.3K) |
 | 📖 **Reddit** | Search · Read | Cookie | Requires auth since 2024 — `rdt login` after install ([rdt-cli](https://github.com/public-clis/rdt-cli)) |
+| 🟧 **Hacker News** | Search · Read | Zero config | Public [Algolia HN API](https://hn.algolia.com/api), no auth. Stories + truncated comment threads via `agent-reach format hn` |
 
 > **Setup levels:** Zero config = install and go · Auto-configured = handled during install · mcporter = needs MCP service · Cookie = export from browser · Proxy = $1/month
 
@@ -203,6 +204,7 @@ channels/
 ├── github.py       → gh CLI          ← swap to REST API, PyGithub…
 ├── bilibili.py     → yt-dlp          ← swap to bilibili-api…
 ├── reddit.py       → rdt-cli          ← search + read, cookie auth required
+├── hackernews.py   → Algolia HN API  ← public API, no auth, token-lean output
 ├── xiaohongshu.py  → mcporter MCP    ← swap to other XHS tools…
 ├── douyin.py       → mcporter MCP    ← swap to other Douyin tools…
 ├── linkedin.py     → linkedin-mcp    ← swap to LinkedIn API…
@@ -220,6 +222,7 @@ Each channel file only checks whether its upstream tool is installed and working
 | Read web pages | [Jina Reader](https://github.com/jina-ai/reader) | 9.8K stars, free, no API key needed |
 | Read tweets | [twitter-cli](https://github.com/public-clis/twitter-cli) | 2.1K stars, cookie auth, search/read/timeline/articles |
 | Reddit | [rdt-cli](https://github.com/public-clis/rdt-cli) | 304 stars, cookie auth, search + full posts + comments |
+| Hacker News | [Algolia HN API](https://hn.algolia.com/api) | Public, no auth, story search + comment threads; `agent-reach format hn` keeps output token-lean |
 | Video subtitles + search | [yt-dlp](https://github.com/yt-dlp/yt-dlp) | 154K stars, YouTube + Bilibili + 1800 sites |
 | Bilibili enhanced | [bili-cli](https://github.com/public-clis/bilibili-cli) | 590 stars, hot/rank/search/feed |
 | Search the web | [Exa](https://exa.ai) via [mcporter](https://github.com/nicobailon/mcporter) | AI semantic search, MCP integration, no API key |
