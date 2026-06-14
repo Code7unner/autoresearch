@@ -243,10 +243,18 @@ def _cmd_install(args):
             installer = CHANNEL_INSTALLERS.get(ch_name)
             if installer:
                 installer()
+        # Channels without an auto-installer (linkedin, douyin) get explicit guidance
+        # instead of being silently skipped.
+        _report_manual_channels(requested_channels)
 
     if requested_channels and dry_run:
         print()
-        print(f"[dry-run] Would install optional channels: {', '.join(sorted(requested_channels))}")
+        auto = sorted(requested_channels & set(CHANNEL_INSTALLERS))
+        manual = sorted(requested_channels & set(_MANUAL_SETUP_GUIDANCE))
+        if auto:
+            print(f"[dry-run] Would install optional channels: {', '.join(auto)}")
+        if manual:
+            print(f"[dry-run] These need manual setup (no auto-install): {', '.join(manual)}")
 
     # ── Auto-import cookies (only if cookie-needing channels are requested) ──
     needs_cookies = bool(requested_channels & COOKIE_CHANNELS)
@@ -657,6 +665,39 @@ def _install_twitter_deps():
             except Exception:
                 pass
     print("  [!]  twitter-cli install failed. Run: pipx install twitter-cli")
+
+
+# Channels that have no auto-installer and need a one-time manual setup. Keyed by
+# channel name; the value is the guidance printed during `install`. Without this,
+# requesting e.g. `--channels=linkedin` would silently do nothing and leave the
+# user thinking it was installed.
+_MANUAL_SETUP_GUIDANCE = {
+    "linkedin": [
+        "LinkedIn has no auto-installer — it needs a one-time manual setup:",
+        "  uv tool install linkedin-scraper-mcp   (or: pip install linkedin-scraper-mcp)",
+        "  linkedin-scraper-mcp --login --no-headless     # log in once via browser",
+        "  mcporter config add linkedin --command linkedin-scraper-mcp --scope home",
+        "  Details: docs/install.md (LinkedIn section)",
+    ],
+    "douyin": [
+        "Douyin has no auto-installer — set up its MCP server manually.",
+        "  Details: docs/install.md (Douyin section)",
+    ],
+}
+
+
+def _report_manual_channels(requested_channels):
+    """Print honest setup guidance for requested channels with no auto-installer.
+
+    Channels that are cookie-only (e.g. xueqiu) are handled by the cookie-import
+    step and intentionally produce no output here.
+    """
+    for ch_name in sorted(requested_channels):
+        guidance = _MANUAL_SETUP_GUIDANCE.get(ch_name)
+        if guidance:
+            print()
+            for line in guidance:
+                print(line)
 
 
 def _install_xhs_deps():

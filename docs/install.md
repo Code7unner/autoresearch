@@ -312,8 +312,12 @@ mcporter config add douyin \
 > "Basic LinkedIn content can be read via Jina Reader. Full features (profile details, job search) require linkedin-scraper-mcp."
 
 ```bash
-pip install linkedin-scraper-mcp
+uv tool install linkedin-scraper-mcp     # or: pip install linkedin-scraper-mcp
 ```
+
+> ℹ️ The package prints a notice that `linkedin-scraper-mcp` was renamed to
+> `mcp-server-linkedin`. The `linkedin-scraper-mcp` command still works, so the
+> steps below are fine; only switch the command name if a future version drops it.
 
 > **Login method (requires a browser UI):**
 >
@@ -323,7 +327,9 @@ pip install linkedin-scraper-mcp
 >   ```bash
 >   linkedin-scraper-mcp --login --no-headless
 >   ```
->   The browser will pop up; just log in to LinkedIn manually.
+>   The browser will pop up; just log in to LinkedIn manually. The session is
+>   saved to `~/.linkedin-mcp/profile/`. Verify any time with
+>   `linkedin-scraper-mcp --status`.
 >
 > - **Server (no UI):** you need to operate it through a VNC remote desktop:
 >   ```bash
@@ -339,11 +345,24 @@ pip install linkedin-scraper-mcp
 >   ```
 >   Once you see the browser in VNC, log in manually. After a successful login, the session is saved to `~/.linkedin-mcp/profile/`.
 >
-> **After login, start the MCP service:**
+> **After login, register it with mcporter (stdio — recommended):**
 > ```bash
-> linkedin-scraper-mcp --transport streamable-http --port 8001
-> mcporter config add linkedin http://localhost:8001/mcp
+> mcporter config add linkedin --command linkedin-scraper-mcp --scope home
 > ```
+> This lets mcporter launch the scraper on demand, so there is **no long-running
+> server to keep alive** and it survives across sessions. `--scope home` writes to
+> `~/.mcporter/mcporter.json` — important when you run this from inside a git repo,
+> so you don't dirty a tracked project `config/mcporter.json`. The first LinkedIn
+> call each session is slower (~5–10s) while the browser cold-starts.
+>
+> <details><summary>Alternative: persistent HTTP server</summary>
+>
+> ```bash
+> linkedin-scraper-mcp --transport streamable-http --port 8001   # keep running
+> mcporter config add linkedin http://localhost:8001/mcp --scope home
+> ```
+> Note: this server dies when its terminal/session closes, so the stdio setup above is preferred.
+> </details>
 >
 > See https://github.com/stickerdaniel/linkedin-mcp-server
 

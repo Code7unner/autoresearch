@@ -1,7 +1,14 @@
 {
   "permissions": {
     "allow": [
-      "WebFetch(domain:community.groq.com)"
+      "WebFetch(domain:community.groq.com)",
+      "Bash(curl -s \"https://r.jina.ai/https://raw.githubusercontent.com/Panniantong/agent-reach/main/docs/install.md\")",
+      "Bash(agent-reach install *)",
+      "Bash(command -v bird)",
+      "Bash(bird --version)",
+      "Bash(command -v linkedin-scraper-mcp)",
+      "Bash(mcporter list *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://127.0.0.1:8001/mcp)"
     ]
   }
 }
