@@ -3,8 +3,8 @@
 
 import pytest
 
-import agent_reach.doctor as doctor
-from agent_reach.config import Config
+import autoresearch.doctor as doctor
+from autoresearch.config import Config
 
 
 class _StubChannel:
@@ -93,7 +93,7 @@ class TestDoctor:
         # Strip Rich markup tags for assertion (PR #170 added [bold], [yellow] etc.)
         import re
         plain = re.sub(r"\[[^\]]*\]", "", report)
-        assert "Agent Reach" in plain
+        assert "autoresearch" in plain
         assert "Ready to use:" in plain
         assert "1/3 channels available" in plain
         # Inactive optional channels should be summarized in one line

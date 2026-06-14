@@ -1,6 +1,6 @@
 # Dependency Locking Guide
 
-Agent Reach uses `constraints.txt` as a reproducible dependency baseline.
+autoresearch uses `constraints.txt` as a reproducible dependency baseline.
 
 ## Why
 
@@ -23,8 +23,8 @@ pip install -c constraints.txt -e .[dev]
 
 ```bash
 pytest -q
-ruff check agent_reach tests
-mypy agent_reach
+ruff check autoresearch tests
+mypy autoresearch
 ```
 
 5. Open PR with dependency and validation notes.

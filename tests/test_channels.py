@@ -6,11 +6,11 @@ import shutil
 import subprocess
 from urllib.error import URLError
 
-from agent_reach.channels import get_all_channels, get_channel
-from agent_reach.channels.v2ex import V2EXChannel
-from agent_reach.channels.xiaohongshu import XiaoHongShuChannel
-from agent_reach.channels.xueqiu import XueqiuChannel
-from agent_reach.channels.hackernews import HackerNewsChannel, format_hn_result
+from autoresearch.channels import get_all_channels, get_channel
+from autoresearch.channels.v2ex import V2EXChannel
+from autoresearch.channels.xiaohongshu import XiaoHongShuChannel
+from autoresearch.channels.xueqiu import XueqiuChannel
+from autoresearch.channels.hackernews import HackerNewsChannel, format_hn_result
 
 
 class TestChannelRegistry:
@@ -337,7 +337,7 @@ class TestXueqiuChannel:
         assert not ch.can_handle("https://v2ex.com/t/123")
 
     def test_check_ok_when_api_reachable(self, monkeypatch):
-        import agent_reach.channels.xueqiu as xueqiu_mod
+        import autoresearch.channels.xueqiu as xueqiu_mod
 
         monkeypatch.setattr(xueqiu_mod, "_cookies_initialized", True)
 
@@ -365,7 +365,7 @@ class TestXueqiuChannel:
         assert "Public API available" in msg
 
     def test_check_warn_when_api_unreachable(self, monkeypatch):
-        import agent_reach.channels.xueqiu as xueqiu_mod
+        import autoresearch.channels.xueqiu as xueqiu_mod
 
         monkeypatch.setattr(xueqiu_mod, "_cookies_initialized", True)
 
@@ -382,7 +382,7 @@ class TestXueqiuChannel:
     # ------------------------------------------------------------------ #
 
     def test_get_stock_quote(self, monkeypatch):
-        import agent_reach.channels.xueqiu as xueqiu_mod
+        import autoresearch.channels.xueqiu as xueqiu_mod
 
         monkeypatch.setattr(xueqiu_mod, "_cookies_initialized", True)
 
@@ -435,7 +435,7 @@ class TestXueqiuChannel:
     # ------------------------------------------------------------------ #
 
     def test_search_stock(self, monkeypatch):
-        import agent_reach.channels.xueqiu as xueqiu_mod
+        import autoresearch.channels.xueqiu as xueqiu_mod
 
         monkeypatch.setattr(xueqiu_mod, "_cookies_initialized", True)
 
@@ -468,7 +468,7 @@ class TestXueqiuChannel:
     # ------------------------------------------------------------------ #
 
     def test_get_hot_posts_returns_list(self, monkeypatch):
-        import agent_reach.channels.xueqiu as xueqiu_mod
+        import autoresearch.channels.xueqiu as xueqiu_mod
 
         monkeypatch.setattr(xueqiu_mod, "_cookies_initialized", True)
 
@@ -512,7 +512,7 @@ class TestXueqiuChannel:
         assert posts[0]["url"] == "https://xueqiu.com/1234567890/111"
 
     def test_get_hot_posts_respects_limit(self, monkeypatch):
-        import agent_reach.channels.xueqiu as xueqiu_mod
+        import autoresearch.channels.xueqiu as xueqiu_mod
 
         monkeypatch.setattr(xueqiu_mod, "_cookies_initialized", True)
 
@@ -552,7 +552,7 @@ class TestXueqiuChannel:
     # ------------------------------------------------------------------ #
 
     def test_get_hot_stocks(self, monkeypatch):
-        import agent_reach.channels.xueqiu as xueqiu_mod
+        import autoresearch.channels.xueqiu as xueqiu_mod
 
         monkeypatch.setattr(xueqiu_mod, "_cookies_initialized", True)
 
@@ -590,7 +590,7 @@ class TestXueqiuChannel:
 
     def test_ensure_cookies_loads_from_config(self, monkeypatch, tmp_path):
         """_ensure_cookies() should inject cookies from the config file."""
-        import agent_reach.channels.xueqiu as xueqiu_mod
+        import autoresearch.channels.xueqiu as xueqiu_mod
 
         monkeypatch.setattr(xueqiu_mod, "_cookies_initialized", False)
 
@@ -601,7 +601,7 @@ class TestXueqiuChannel:
                     return "xq_a_token=TESTTOKEN; xq_is_login=1"
                 return default
 
-        import agent_reach.channels.xueqiu as xq_mod
+        import autoresearch.channels.xueqiu as xq_mod
         monkeypatch.setattr(
             xq_mod,
             "_load_cookies_from_config",
@@ -624,7 +624,7 @@ class TestXueqiuChannel:
 
     def test_get_json_sends_referer_and_browser_ua(self, monkeypatch):
         """_get_json() must send Referer and a browser-like User-Agent."""
-        import agent_reach.channels.xueqiu as xueqiu_mod
+        import autoresearch.channels.xueqiu as xueqiu_mod
 
         monkeypatch.setattr(xueqiu_mod, "_cookies_initialized", True)
         captured = {}
@@ -644,13 +644,13 @@ class TestXueqiuChannel:
 
         assert captured["referer"] == "https://xueqiu.com/"
         assert "Mozilla" in captured["ua"]
-        assert "agent-reach" not in captured["ua"]
+        assert "autoresearch" not in captured["ua"]
 
 
 class TestRedditChannel:
     def test_reports_off_when_not_installed(self, monkeypatch):
         monkeypatch.setattr(shutil, "which", lambda _: None)
-        from agent_reach.channels.reddit import RedditChannel
+        from autoresearch.channels.reddit import RedditChannel
         status, msg = RedditChannel().check()
         assert status == "off"
         assert "rdt-cli" in msg
@@ -668,7 +668,7 @@ class TestRedditChannel:
             return subprocess.CompletedProcess(cmd, 0, fake_output, "")
 
         monkeypatch.setattr(subprocess, "run", fake_run)
-        from agent_reach.channels.reddit import RedditChannel
+        from autoresearch.channels.reddit import RedditChannel
         status, msg = RedditChannel().check()
         assert status == "ok"
         assert "testuser" in msg
@@ -685,7 +685,7 @@ class TestRedditChannel:
             return subprocess.CompletedProcess(cmd, 0, fake_output, "")
 
         monkeypatch.setattr(subprocess, "run", fake_run)
-        from agent_reach.channels.reddit import RedditChannel
+        from autoresearch.channels.reddit import RedditChannel
         status, msg = RedditChannel().check()
         assert status == "warn"
         assert "403" in msg
@@ -700,12 +700,12 @@ class TestRedditChannel:
             return subprocess.CompletedProcess(cmd, 1, "not valid json{{{", "")
 
         monkeypatch.setattr(subprocess, "run", fake_run)
-        from agent_reach.channels.reddit import RedditChannel
+        from autoresearch.channels.reddit import RedditChannel
         status, msg = RedditChannel().check()
         assert status == "warn"
 
     def test_can_handle_reddit_urls(self):
-        from agent_reach.channels.reddit import RedditChannel
+        from autoresearch.channels.reddit import RedditChannel
         ch = RedditChannel()
         assert ch.can_handle("https://www.reddit.com/r/python/comments/abc123/")
         assert ch.can_handle("https://redd.it/abc123")
@@ -801,7 +801,7 @@ class TestHackerNewsChannelBasics:
         assert "failed" in msg
 
     def test_search_stories_maps_fields_and_respects_limit(self, monkeypatch):
-        import agent_reach.channels.hackernews as hn
+        import autoresearch.channels.hackernews as hn
 
         fake = {
             "hits": [
@@ -840,7 +840,7 @@ class TestHackerNewsChannelBasics:
         assert "_tags" not in first
 
     def test_get_item_returns_cleaned_truncated_story(self, monkeypatch):
-        import agent_reach.channels.hackernews as hn
+        import autoresearch.channels.hackernews as hn
 
         fake_item = {
             "id": 8863,

@@ -1,6 +1,6 @@
-# Contributing to Agent Reach
+# Contributing to autoresearch
 
-Thank you for your interest in contributing to Agent Reach! This document provides guidelines and instructions for contributing.
+Thank you for your interest in contributing to autoresearch! This document provides guidelines and instructions for contributing.
 
 ## Getting Started
 
@@ -15,8 +15,8 @@ Thank you for your interest in contributing to Agent Reach! This document provid
 
 ```bash
 # Clone your fork
-git clone https://github.com/YOUR_USERNAME/Agent-Reach.git
-cd Agent-Reach
+git clone https://github.com/YOUR_USERNAME/autoresearch.git
+cd autoresearch
 
 # Install in development mode
 pip install -e ".[dev]"
@@ -37,11 +37,11 @@ Run all checks before submitting a PR:
 
 ```bash
 # Linting
-ruff check agent_reach tests
-ruff format agent_reach tests
+ruff check autoresearch tests
+ruff format autoresearch tests
 
 # Type checking
-mypy agent_reach
+mypy autoresearch
 
 # Tests
 pytest
@@ -49,12 +49,12 @@ pytest
 
 ## Adding New Channels
 
-Agent Reach uses a unified channel interface. To add a new platform:
+autoresearch uses a unified channel interface. To add a new platform:
 
-1. Create a new file in `agent_reach/channels/`
+1. Create a new file in `autoresearch/channels/`
 2. Implement the channel contract (see existing channels for examples)
 3. Add tests in `tests/test_channels.py`
-4. Update `agent_reach/doctor.py` to include the new channel
+4. Update `autoresearch/doctor.py` to include the new channel
 5. Update documentation
 
 ## Pull Request Guidelines

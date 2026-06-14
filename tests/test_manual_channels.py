@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 """Channels without an auto-installer (linkedin, douyin) must be reported
-honestly during `agent-reach install`, instead of being silently skipped and
+honestly during `autoresearch install`, instead of being silently skipped and
 leaving the user thinking the tool was installed.
 """
 
-import agent_reach.cli as cli
+import autoresearch.cli as cli
 
 
 def test_report_manual_channels_explains_linkedin(capsys):

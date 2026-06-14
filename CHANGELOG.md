@@ -11,7 +11,7 @@ All notable changes to this project will be documented in this file.
 #### 📈 Xueqiu — Comprehensive fix
 
 - **Fixed the root cause of the 400 error:** `_ensure_cookies()` only visited the homepage, which can only obtain `acw_tc` (an anti-DDoS token). `xq_a_token` is generated dynamically by Xueqiu's frontend JS and cannot be obtained through a pure HTTP request. Added a three-tier cookie loading strategy: (1) read from the config file (saved via `--from-browser`) → (2) automatically extract from the local Chrome browser (requires browser-cookie3) → (3) homepage fallback
-- **Fixed the User-Agent:** `"agent-reach/1.0"` was detected and rejected by Xueqiu's anti-scraping system; changed to a real Chrome UA
+- **Fixed the User-Agent:** `"autoresearch/1.0"` was detected and rejected by Xueqiu's anti-scraping system; changed to a real Chrome UA
 - **Fixed the missing `Referer` header:** all API requests now include `Referer: https://xueqiu.com/`
 - **Fixed the `get_hot_posts()` endpoint:** the original endpoint `/statuses/hot/listV3.json` is deprecated (returns an empty body); switched to `/v4/statuses/public_timeline_by_category.json` and correctly parse the `item.data` JSON string to extract author/likes/text
 - **Fixed `urllib.request.quote` → `urllib.parse.quote`:** explicitly use the correct module
@@ -57,7 +57,7 @@ All notable changes to this project will be documented in this file.
 ### 📈 Improvements
 
 - Channel count: 9 → 12
-- `agent-reach doctor` now detects all 12 channels
+- `autoresearch doctor` now detects all 12 channels
 - CLI: added `search-linkedin`, `search-bosszhipin` subcommands
 - Updated install guide with setup instructions for new channels
 
@@ -71,5 +71,5 @@ All notable changes to this project will be documented in this file.
 - CLI with `read`, `search`, `doctor`, `install` commands
 - Unified channel interface — each platform is a single pluggable Python file
 - Auto-detection of local vs server environments
-- Built-in diagnostics via `agent-reach doctor`
+- Built-in diagnostics via `autoresearch doctor`
 - Skill registration for Claude Code / OpenClaw / Cursor

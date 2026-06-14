@@ -1,4 +1,4 @@
-# Agent Reach
+# autoresearch
 
 > Give your AI agent eyes to see the entire internet. A unified CLI tool that lets AI agents read and search across 12+ platforms — Twitter/X, Reddit, YouTube, GitHub, Bilibili, XiaoHongShu, Instagram, LinkedIn, Boss Zhipin, RSS, and any web page. One install, zero API fees.
 
@@ -9,14 +9,14 @@
 
 ## Core Commands
 
-- [CLI Usage](https://github.com/Code7unner/autoresearch/blob/main/docs/install.md): `agent-reach read <url>` reads any URL, `agent-reach search-twitter "query"` searches Twitter, etc.
+- [CLI Usage](https://github.com/Code7unner/autoresearch/blob/main/docs/install.md): `autoresearch read <url>` reads any URL, `autoresearch search-twitter "query"` searches Twitter, etc.
 
 ## Key Features
 
 - Read any URL: tweets, Reddit posts, YouTube videos (transcripts), GitHub repos, articles, XiaoHongShu notes, Bilibili videos, RSS feeds
 - Search across platforms: Twitter/X, Reddit, GitHub, YouTube, Bilibili, XiaoHongShu, Instagram, LinkedIn, Boss Zhipin, Web (via Exa)
-- Self-diagnosis: `agent-reach doctor` checks what works and what needs setup
-- Auto-installs dependencies: `agent-reach install --env=auto`
+- Self-diagnosis: `autoresearch doctor` checks what works and what needs setup
+- Auto-installs dependencies: `autoresearch install --env=auto`
 - Cookie-based auth for platforms that require login (Twitter, XiaoHongShu, Instagram)
 - Proxy support for platforms that block server IPs (Reddit, Bilibili)
 - Zero API fees: all backends are free and open-source (bird CLI, yt-dlp, Jina Reader, instaloader, etc.)
@@ -27,5 +27,5 @@
 
 ## Optional
 
-- [SKILL.md](https://github.com/Code7unner/autoresearch/blob/main/agent_reach/skill/SKILL.md): Integration guide for AI agent frameworks (OpenClaw, Claude Code, etc.)
-- [PyPI Package](https://pypi.org/project/agent-reach/): `pip install agent-reach`
+- [SKILL.md](https://github.com/Code7unner/autoresearch/blob/main/autoresearch/skill/SKILL.md): Integration guide for AI agent frameworks (OpenClaw, Claude Code, etc.)
+- [PyPI Package](https://pypi.org/project/autoresearch/): `pip install autoresearch`
