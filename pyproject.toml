@@ -5,7 +5,7 @@ description = "Give your AI Agent eyes to see the entire internet. Search + Read
 readme = "README.md"
 license = {text = "MIT"}
 requires-python = ">=3.10"
-authors = [{name = "Neo Reid"}]
+authors = [{name = "maxim cherbadzhi", email = "cherbadzhimaxim@gmail.com"}]
 keywords = [
     "ai-agent", "llm-tools", "agent-infrastructure", "mcp",
     "web-reader", "web-scraper", "search",

@@ -241,7 +241,7 @@ Each channel file only checks whether its upstream tool is installed and working
 
 ## Contributing
 
-This project was entirely vibe-coded 🎸 There might be rough edges here and there — sorry about that! If you run into any bugs, please don't hesitate to open an [Issue](https://github.com/Code7unner/autoresearch/issues) and I'll fix it ASAP.
+There might be rough edges here and there. If you run into any bugs, please open an [Issue](https://github.com/Code7unner/autoresearch/issues) and we'll fix it as soon as possible.
 
 **Want a new channel?** Open an Issue to request it, or submit a PR yourself.
 

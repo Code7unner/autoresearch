@@ -2,7 +2,7 @@
 """Agent Reach — Give your AI Agent eyes to see the entire internet."""
 
 __version__ = "1.4.0"
-__author__ = "Neo Reid"
+__author__ = "maxim cherbadzhi"
 
 from agent_reach.core import AgentReach
 

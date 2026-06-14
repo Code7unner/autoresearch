@@ -174,31 +174,6 @@ def _sync_xfetch_session(auth_token: str, ct0: str) -> None:
         pass
 
 
-def _sync_bird_env(auth_token: str, ct0: str) -> None:
-    """Write Twitter credentials to ~/.config/bird/credentials.env for bird CLI.
-
-    bird reads AUTH_TOKEN and CT0 from environment variables. This writes a
-    shell-sourceable file so users can `source ~/.config/bird/credentials.env`.
-    """
-    import os
-
-    try:
-        bird_dir = os.path.join(os.path.expanduser("~"), ".config", "bird")
-        os.makedirs(bird_dir, exist_ok=True)
-        env_path = os.path.join(bird_dir, "credentials.env")
-        with open(env_path, "w", encoding="utf-8") as f:
-            f.write(f'AUTH_TOKEN="{auth_token}"\n')
-            f.write(f'CT0="{ct0}"\n')
-        os.chmod(env_path, 0o600)
-    except Exception:
-        # Non-fatal: agent-reach config is the source of truth, bird env sync is best-effort
-        pass
-
-
-# Alias for callers expecting the name _sync_bird_credentials
-_sync_bird_credentials = _sync_bird_env
-
-
 def configure_from_browser(browser: str, config) -> List[Tuple[str, bool, str]]:
     """
     Extract cookies and configure all found platforms.
