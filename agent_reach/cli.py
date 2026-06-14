@@ -321,7 +321,7 @@ def _cmd_install(args):
         # Star reminder
         print()
         print("If Agent Reach helped you, please give it a Star so more people can find it:")
-        print("   https://github.com/Panniantong/Agent-Reach")
+        print("   https://github.com/Code7unner/autoresearch")
         print("   It only takes a second and means a lot to an independent developer. Thank you!")
     else:
         print()
@@ -1642,8 +1642,8 @@ def _cmd_check_update():
     from agent_reach import __version__
 
     print(f"Current version: v{__version__}")
-    release_url = "https://api.github.com/repos/Panniantong/Agent-Reach/releases/latest"
-    commit_url = "https://api.github.com/repos/Panniantong/Agent-Reach/commits/main"
+    release_url = "https://api.github.com/repos/Code7unner/autoresearch/releases/latest"
+    commit_url = "https://api.github.com/repos/Code7unner/autoresearch/commits/main"
 
     # Fetch latest release with retry/backoff.
     resp, err, attempts = _github_get_with_retry(release_url, timeout=10, retries=3)
@@ -1666,7 +1666,7 @@ def _cmd_check_update():
                     print(f"  {line}")
             print()
             print("Update command:")
-            print("  pip install --upgrade https://github.com/Panniantong/agent-reach/archive/main.zip")
+            print("  pip install --upgrade https://github.com/Code7unner/autoresearch/archive/main.zip")
             return "update_available"
         print(f"✅ Already on the latest version")
         return "up_to_date"
@@ -1689,7 +1689,7 @@ def _cmd_check_update():
         print(f"Latest commit: {sha} ({date}) {msg}")
         print()
         print("Update command:")
-        print("  pip install --upgrade https://github.com/Panniantong/agent-reach/archive/main.zip")
+        print("  pip install --upgrade https://github.com/Code7unner/autoresearch/archive/main.zip")
         return "unknown"
 
     commit_err = _classify_github_response_error(resp2)
@@ -1730,7 +1730,7 @@ def _cmd_watch():
     new_version = ""
     release_body = ""
     resp, err, _attempts = _github_get_with_retry(
-        "https://api.github.com/repos/Panniantong/Agent-Reach/releases/latest",
+        "https://api.github.com/repos/Code7unner/autoresearch/releases/latest",
         timeout=10,
         retries=2,
     )
@@ -1762,7 +1762,7 @@ def _cmd_watch():
         if release_body:
             for line in release_body.strip().split("\n")[:10]:
                 print(f"    {line}")
-        print(f"  Update: pip install --upgrade https://github.com/Panniantong/agent-reach/archive/main.zip")
+        print(f"  Update: pip install --upgrade https://github.com/Code7unner/autoresearch/archive/main.zip")
 
 
 if __name__ == "__main__":

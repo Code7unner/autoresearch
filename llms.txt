@@ -4,12 +4,12 @@
 
 ## Quick Start
 
-- [Installation Guide](https://github.com/Panniantong/Agent-Reach/blob/main/docs/install.md): Step-by-step setup instructions for AI agents
-- [README](https://github.com/Panniantong/Agent-Reach/blob/main/README.md): Full documentation
+- [Installation Guide](https://github.com/Code7unner/autoresearch/blob/main/docs/install.md): Step-by-step setup instructions for AI agents
+- [README](https://github.com/Code7unner/autoresearch/blob/main/README.md): Full documentation
 
 ## Core Commands
 
-- [CLI Usage](https://github.com/Panniantong/Agent-Reach/blob/main/docs/install.md): `agent-reach read <url>` reads any URL, `agent-reach search-twitter "query"` searches Twitter, etc.
+- [CLI Usage](https://github.com/Code7unner/autoresearch/blob/main/docs/install.md): `agent-reach read <url>` reads any URL, `agent-reach search-twitter "query"` searches Twitter, etc.
 
 ## Key Features
 
@@ -23,9 +23,9 @@
 
 ## Troubleshooting
 
-- [Troubleshooting Guide](https://github.com/Panniantong/Agent-Reach/blob/main/docs/troubleshooting.md): Common issues and solutions
+- [Troubleshooting Guide](https://github.com/Code7unner/autoresearch/blob/main/docs/troubleshooting.md): Common issues and solutions
 
 ## Optional
 
-- [SKILL.md](https://github.com/Panniantong/Agent-Reach/blob/main/agent_reach/skill/SKILL.md): Integration guide for AI agent frameworks (OpenClaw, Claude Code, etc.)
+- [SKILL.md](https://github.com/Code7unner/autoresearch/blob/main/agent_reach/skill/SKILL.md): Integration guide for AI agent frameworks (OpenClaw, Claude Code, etc.)
 - [PyPI Package](https://pypi.org/project/agent-reach/): `pip install agent-reach`

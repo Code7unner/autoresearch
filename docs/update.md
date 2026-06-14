@@ -5,13 +5,13 @@
 Copy this to your AI Agent:
 
 ```
-Help me update Agent Reach: https://raw.githubusercontent.com/Panniantong/agent-reach/main/docs/update.md
+Help me update Agent Reach: https://raw.githubusercontent.com/Code7unner/autoresearch/main/docs/update.md
 ```
 
 Or in English:
 
 ```
-Update Agent Reach: https://raw.githubusercontent.com/Panniantong/agent-reach/main/docs/update.md
+Update Agent Reach: https://raw.githubusercontent.com/Code7unner/autoresearch/main/docs/update.md
 ```
 
 ---
@@ -37,7 +37,7 @@ If it says "Already on the latest version", skip to Step 5 (verify). Otherwise c
 ### Step 2: Update Agent Reach package
 
 ```bash
-pip install --upgrade https://github.com/Panniantong/agent-reach/archive/main.zip
+pip install --upgrade https://github.com/Code7unner/autoresearch/archive/main.zip
 ```
 
 ### Step 3: Install / migrate upstream tools
