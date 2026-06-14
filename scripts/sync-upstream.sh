@@ -58,7 +58,7 @@ for upstream_file in "$TMPDIR/upstream/$UPSTREAM_DIR"/*.py; do
 done
 
 if [ $CHANGES -eq 0 ]; then
-    echo "✅ All channels are up to date with upstream!"
+    echo "✅ All сhannels are up to date with upstream!"
 else
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
