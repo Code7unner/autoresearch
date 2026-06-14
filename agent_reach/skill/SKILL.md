@@ -15,7 +15,7 @@ description: >
   "install agent reach".
 metadata:
   openclaw:
-    homepage: https://github.com/Panniantong/Agent-Reach
+    homepage: https://github.com/Code7unner/autoresearch
 ---
 
 # Agent Reach — Usage Guide
@@ -323,6 +323,6 @@ for e in feedparser.parse('FEED_URL').entries[:5]:
 ## Setting Up a Channel ("help me configure XXX")
 
 If a channel needs setup (cookies, Docker, etc.), fetch the install guide:
-https://raw.githubusercontent.com/Panniantong/agent-reach/main/docs/install.md
+https://raw.githubusercontent.com/Code7unner/autoresearch/main/docs/install.md
 
 The user only provides cookies. Everything else is your job.

@@ -5,12 +5,12 @@
 Copy this to your AI Agent:
 
 ```
-Help me install Agent Reach: https://raw.githubusercontent.com/Panniantong/agent-reach/main/docs/install.md
+Help me install Agent Reach: https://raw.githubusercontent.com/Code7unner/autoresearch/main/docs/install.md
 ```
 
 > 🛡️ **Security-conscious?** Use safe mode — it won't auto-install system packages:
 > ```
-> Help me install Agent Reach (safe mode): https://raw.githubusercontent.com/Panniantong/agent-reach/main/docs/install.md
+> Help me install Agent Reach (safe mode): https://raw.githubusercontent.com/Code7unner/autoresearch/main/docs/install.md
 > Use the --safe flag during installation
 > ```
 
@@ -50,14 +50,14 @@ All Agent Reach files go in dedicated directories — **never in the agent works
 
 ```bash
 # Recommended: pipx (the easiest option)
-pipx install https://github.com/Panniantong/agent-reach/archive/main.zip
+pipx install https://github.com/Code7unner/autoresearch/archive/main.zip
 agent-reach install --env=auto
 
 # If your Python comes from Homebrew / you hit PEP 668 (externally-managed-environment)
 # install inside a virtual environment:
 python3 -m venv ~/.agent-reach-venv
 source ~/.agent-reach-venv/bin/activate
-pip install https://github.com/Panniantong/agent-reach/archive/main.zip
+pip install https://github.com/Code7unner/autoresearch/archive/main.zip
 agent-reach install --env=auto
 ```
 
@@ -382,7 +382,7 @@ If the user agrees, create a **cron job** (daily, `sessionTarget: "isolated"`, `
 Run the agent-reach watch command.
 If the output contains "all good", do not notify the user — exit silently.
 If the output contains problems (❌ ⚠️) or a new version (🆕), send the full report to the user and suggest a fix.
-If a new version is available, ask the user whether to upgrade (upgrade command: pip install --upgrade https://github.com/Panniantong/agent-reach/archive/main.zip).
+If a new version is available, ask the user whether to upgrade (upgrade command: pip install --upgrade https://github.com/Code7unner/autoresearch/archive/main.zip).
 ```
 
 If the user wants a different agent to handle it, let them choose.
