@@ -16,9 +16,9 @@ import re
 
 import pytest
 
-import agent_reach
+import autoresearch
 
-_PKG_DIR = os.path.dirname(agent_reach.__file__)
+_PKG_DIR = os.path.dirname(autoresearch.__file__)
 _REPO_ROOT = os.path.dirname(_PKG_DIR)
 SKILL_MD = os.path.join(_PKG_DIR, "skill", "SKILL.md")
 INSTALL_MD = os.path.join(_REPO_ROOT, "docs", "install.md")
@@ -32,7 +32,7 @@ def _read(path):
 
 
 def test_skill_platform_count_matches_registered_channels():
-    from agent_reach.channels import ALL_CHANNELS
+    from autoresearch.channels import ALL_CHANNELS
 
     content = _read(SKILL_MD)
     matches = {int(n) for n in re.findall(r"(\d+)\s+platforms", content)}
@@ -60,4 +60,30 @@ def test_install_guide_linkedin_uses_stdio_and_home_scope():
     assert "--scope home" in content, (
         "LinkedIn guide should write the mcporter entry to the home config, "
         "not the project/repo config"
+    )
+
+
+PYPROJECT = os.path.join(_REPO_ROOT, "pyproject.toml")
+TEST_CLI = os.path.join(_REPO_ROOT, "tests", "test_cli.py")
+
+
+def test_version_is_consistent_across_three_places():
+    """CLAUDE.md mandates the version match in pyproject.toml, the package
+    __init__, and tests/test_cli.py. This guards that rule."""
+    import autoresearch
+
+    pyproject = _read(PYPROJECT)
+    m = re.search(r'^version\s*=\s*"([^"]+)"', pyproject, re.MULTILINE)
+    assert m, "pyproject.toml should declare a version"
+    pyproject_version = m.group(1)
+
+    assert autoresearch.__version__ == pyproject_version, (
+        f"__init__ version {autoresearch.__version__!r} != "
+        f"pyproject {pyproject_version!r}"
+    )
+
+    cli_tests = _read(TEST_CLI)
+    assert f"v{pyproject_version}" in cli_tests, (
+        f"tests/test_cli.py should reference v{pyproject_version} "
+        "(the check-update 'latest' tag) so it tracks the current version"
     )

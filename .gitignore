@@ -6,6 +6,6 @@ __pycache__/
 dist/
 build/
 .env
-.agent-reach/
+.autoresearch/
 *.log
 ./.claude/settings.local.json

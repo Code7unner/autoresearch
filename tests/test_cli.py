@@ -1,33 +1,33 @@
 # -*- coding: utf-8 -*-
-"""Tests for Agent Reach CLI."""
+"""Tests for autoresearch CLI."""
 
 import pytest
 import requests
 from unittest.mock import patch
-import agent_reach.cli as cli
-from agent_reach.cli import main
+import autoresearch.cli as cli
+from autoresearch.cli import main
 
 
 class TestCLI:
     def test_version(self, capsys):
         with pytest.raises(SystemExit) as exc_info:
-            with patch("sys.argv", ["agent-reach", "version"]):
+            with patch("sys.argv", ["autoresearch", "version"]):
                 main()
         assert exc_info.value.code == 0
         captured = capsys.readouterr()
-        assert "Agent Reach v" in captured.out
+        assert "autoresearch v" in captured.out
 
     def test_no_command_shows_help(self, capsys):
         with pytest.raises(SystemExit) as exc_info:
-            with patch("sys.argv", ["agent-reach"]):
+            with patch("sys.argv", ["autoresearch"]):
                 main()
         assert exc_info.value.code == 0
 
     def test_doctor_runs(self, capsys):
-        with patch("sys.argv", ["agent-reach", "doctor"]):
+        with patch("sys.argv", ["autoresearch", "doctor"]):
             main()
         captured = capsys.readouterr()
-        assert "Agent Reach" in captured.out
+        assert "autoresearch" in captured.out
         assert "✅" in captured.out
 
     def test_parse_twitter_cookie_input_separate_values(self):
@@ -117,7 +117,7 @@ class TestCheckUpdateRetry:
         assert cli._classify_github_response_error(R()) == "rate_limit"
 
     def test_check_update_reports_classified_error(self, capsys):
-        with patch("agent_reach.cli._github_get_with_retry", return_value=(None, "timeout", 3)):
+        with patch("autoresearch.cli._github_get_with_retry", return_value=(None, "timeout", 3)):
             result = cli._cmd_check_update()
 
         captured = capsys.readouterr()
@@ -132,7 +132,7 @@ class TestFormatCommand:
         import json as _json
 
         with patch("sys.stdin", io.StringIO(stdin_text)):
-            with patch("sys.argv", ["agent-reach", "format", platform]):
+            with patch("sys.argv", ["autoresearch", "format", platform]):
                 main()
         out = capsys.readouterr().out
         return _json.loads(out)

@@ -1,4 +1,4 @@
-<h1 align="center">👁️ Agent Reach</h1>
+<h1 align="center">👁️ autoresearch</h1>
 
 <p align="center">
   <strong>Give your AI Agent one-click access to the entire internet</strong>
@@ -16,7 +16,7 @@
 
 ---
 
-## Why Agent Reach?
+## Why autoresearch?
 
 AI Agents can already access the internet — but "can go online" is barely the start.
 
@@ -31,10 +31,10 @@ The most valuable information lives across social and niche platforms: Twitter d
 
 To connect your Agent to these platforms, you'd have to find tools, install dependencies, and debug configs — one by one.
 
-**Agent Reach turns this into one command:**
+**autoresearch turns this into one command:**
 
 ```
-Install Agent Reach: https://raw.githubusercontent.com/Code7unner/autoresearch/main/docs/install.md
+Install autoresearch: https://raw.githubusercontent.com/Code7unner/autoresearch/main/docs/install.md
 ```
 
 Copy that to your Agent. A few minutes later, it can read tweets, search Reddit, and watch Bilibili.
@@ -42,7 +42,7 @@ Copy that to your Agent. A few minutes later, it can read tweets, search Reddit,
 **Already installed? Update in one command:**
 
 ```
-Update Agent Reach: https://raw.githubusercontent.com/Code7unner/autoresearch/main/docs/update.md
+Update autoresearch: https://raw.githubusercontent.com/Code7unner/autoresearch/main/docs/update.md
 ```
 
 ### ✅ Before you start, you might want to know
@@ -53,7 +53,7 @@ Update Agent Reach: https://raw.githubusercontent.com/Code7unner/autoresearch/ma
 | 🔒 **Privacy safe** | Cookies stay local. Never uploaded. Fully open source — audit anytime |
 | 🔄 **Kept up to date** | Upstream tools (yt-dlp, twitter-cli, rdt-cli, Jina Reader, etc.) are tracked and updated regularly |
 | 🤖 **Works with any Agent** | Claude Code, OpenClaw, Cursor, Windsurf… any Agent that can run commands |
-| 🩺 **Built-in diagnostics** | `agent-reach doctor` — one command shows what works, what doesn't, and how to fix it |
+| 🩺 **Built-in diagnostics** | `autoresearch doctor` — one command shows what works, what doesn't, and how to fix it |
 
 ---
 
@@ -77,7 +77,7 @@ Update Agent Reach: https://raw.githubusercontent.com/Code7unner/autoresearch/ma
 | 📺 **Bilibili** | Read · **Search** | Zero config / Proxy | Video info + subtitles + search. Local works directly, servers need a proxy ([yt-dlp](https://github.com/yt-dlp/yt-dlp)) |
 | 📡 **RSS** | Read | Zero config | Any RSS/Atom feed ([feedparser](https://github.com/kurtmckee/feedparser) ⭐2.3K) |
 | 📖 **Reddit** | Search · Read | Cookie | Requires auth since 2024 — `rdt login` after install ([rdt-cli](https://github.com/public-clis/rdt-cli)) |
-| 🟧 **Hacker News** | Search · Read | Zero config | Public [Algolia HN API](https://hn.algolia.com/api), no auth. Stories + truncated comment threads via `agent-reach format hn` |
+| 🟧 **Hacker News** | Search · Read | Zero config | Public [Algolia HN API](https://hn.algolia.com/api), no auth. Stories + truncated comment threads via `autoresearch format hn` |
 
 > **Setup levels:** Zero config = install and go · Auto-configured = handled during install · mcporter = needs MCP service · Cookie = export from browser · Proxy = $1/month
 
@@ -88,14 +88,14 @@ Update Agent Reach: https://raw.githubusercontent.com/Code7unner/autoresearch/ma
 Copy this to your AI Agent (Claude Code, OpenClaw, Cursor, etc.):
 
 ```
-Install Agent Reach: https://raw.githubusercontent.com/Code7unner/autoresearch/main/docs/install.md
+Install autoresearch: https://raw.githubusercontent.com/Code7unner/autoresearch/main/docs/install.md
 ```
 
 The Agent auto-installs, detects your environment, and tells you what's ready.
 
 > 🔄 **Already installed?** Update in one command:
 > ```
-> Update Agent Reach: https://raw.githubusercontent.com/Code7unner/autoresearch/main/docs/update.md
+> Update autoresearch: https://raw.githubusercontent.com/Code7unner/autoresearch/main/docs/update.md
 > ```
 
 <details>
@@ -103,7 +103,7 @@ The Agent auto-installs, detects your environment, and tells you what's ready.
 
 ```bash
 pip install https://github.com/Code7unner/autoresearch/archive/main.zip
-agent-reach install --env=auto
+autoresearch install --env=auto
 ```
 </details>
 
@@ -111,12 +111,12 @@ agent-reach install --env=auto
 <summary>Install as a Skill (Claude Code / OpenClaw / any agent with Skills support)</summary>
 
 ```bash
-npx skills add Code7unner/autoresearch@agent-reach
+npx skills add Code7unner/autoresearch@autoresearch
 ```
 
-After the Skill is installed, the Agent will auto-detect whether `agent-reach` CLI is available and install it if needed.
+After the Skill is installed, the Agent will auto-detect whether `autoresearch` CLI is available and install it if needed.
 
-> If you install via `agent-reach install`, the skill is registered automatically — no extra steps needed.
+> If you install via `autoresearch install`, the skill is registered automatically — no extra steps needed.
 >
 > The skill ships as a single English `SKILL.md`, installed as `SKILL.md` in the agent's skill directory.
 </details>
@@ -157,9 +157,9 @@ Bilibili blocks server IPs. Get a proxy ([Webshare](https://webshare.io) recomme
 ## Status at a Glance
 
 ```
-$ agent-reach doctor
+$ autoresearch doctor
 
-👁️  Agent Reach Status
+👁️  autoresearch Status
 ========================================
 
 ✅ Ready to use:
@@ -184,11 +184,11 @@ Status: 6/9 channels available
 
 ## Design Philosophy
 
-**Agent Reach is a scaffolding tool, not a framework.**
+**autoresearch is a scaffolding tool, not a framework.**
 
 Every time you spin up a new Agent, you spend time finding tools, installing deps, and debugging configs — what reads Twitter? How do you bypass Reddit blocks? How do you extract YouTube subtitles? Every time, you re-do the same work.
 
-Agent Reach does one simple thing: **it makes those tool selection and configuration decisions for you.**
+autoresearch does one simple thing: **it makes those tool selection and configuration decisions for you.**
 
 After installation, your Agent calls the upstream tools directly (twitter-cli, rdt-cli, xhs-cli, yt-dlp, mcporter, gh CLI, etc.) — no wrapper layer in between.
 
@@ -213,7 +213,7 @@ channels/
 └── __init__.py     → Channel registry (for doctor checks)
 ```
 
-Each channel file only checks whether its upstream tool is installed and working (`check()` method for `agent-reach doctor`). The actual reading and searching is done by calling the upstream tools directly.
+Each channel file only checks whether its upstream tool is installed and working (`check()` method for `autoresearch doctor`). The actual reading and searching is done by calling the upstream tools directly.
 
 ### Current Tool Choices
 
@@ -222,7 +222,7 @@ Each channel file only checks whether its upstream tool is installed and working
 | Read web pages | [Jina Reader](https://github.com/jina-ai/reader) | 9.8K stars, free, no API key needed |
 | Read tweets | [twitter-cli](https://github.com/public-clis/twitter-cli) | 2.1K stars, cookie auth, search/read/timeline/articles |
 | Reddit | [rdt-cli](https://github.com/public-clis/rdt-cli) | 304 stars, cookie auth, search + full posts + comments |
-| Hacker News | [Algolia HN API](https://hn.algolia.com/api) | Public, no auth, story search + comment threads; `agent-reach format hn` keeps output token-lean |
+| Hacker News | [Algolia HN API](https://hn.algolia.com/api) | Public, no auth, story search + comment threads; `autoresearch format hn` keeps output token-lean |
 | Video subtitles + search | [yt-dlp](https://github.com/yt-dlp/yt-dlp) | 154K stars, YouTube + Bilibili + 1800 sites |
 | Bilibili enhanced | [bili-cli](https://github.com/public-clis/bilibili-cli) | 590 stars, hot/rank/search/feed |
 | Search the web | [Exa](https://exa.ai) via [mcporter](https://github.com/nicobailon/mcporter) | AI semantic search, MCP integration, no API key |
@@ -233,7 +233,7 @@ Each channel file only checks whether its upstream tool is installed and working
 | LinkedIn | [linkedin-scraper-mcp](https://github.com/stickerdaniel/linkedin-mcp-server) | 1.2K stars, MCP server, browser automation |
 | WeChat Articles | [Exa](https://exa.ai) (search + read) + [Camoufox](https://github.com/daijro/camoufox) (optional) | Zero-config search + full article reading |
 | Weibo | `mcporter` | `mcporter call 'weibo.get_trendings(limit: 10)'` |
-| Xiaoyuzhou Podcast | `transcribe.sh` | `bash ~/.agent-reach/tools/xiaoyuzhou/transcribe.sh <URL>` |
+| Xiaoyuzhou Podcast | `transcribe.sh` | `bash ~/.autoresearch/tools/xiaoyuzhou/transcribe.sh <URL>` |
 
 > 📌 These are the *current* choices. Don't like one? Swap out the file. That's the whole point of scaffolding.
 
@@ -256,7 +256,7 @@ There might be rough edges here and there. If you run into any bugs, please open
 <details>
 <summary><strong>How to search Twitter/X with AI agent without paying for API?</strong></summary>
 
-Agent Reach uses [twitter-cli](https://github.com/public-clis/twitter-cli) with cookie-based authentication — completely free, no Twitter API subscription needed. Install with `pipx install twitter-cli`, make sure you're logged into x.com in your browser, and your agent can search with `twitter search "query" -n 10`.
+autoresearch uses [twitter-cli](https://github.com/public-clis/twitter-cli) with cookie-based authentication — completely free, no Twitter API subscription needed. Install with `pipx install twitter-cli`, make sure you're logged into x.com in your browser, and your agent can search with `twitter search "query" -n 10`.
 </details>
 
 <details>
@@ -268,17 +268,17 @@ Agent Reach uses [twitter-cli](https://github.com/public-clis/twitter-cli) with 
 <details>
 <summary><strong>Reddit returns 403 from server / datacenter IP blocked?</strong></summary>
 
-Agent Reach uses [rdt-cli](https://github.com/public-clis/rdt-cli) for Reddit. Since 2024, Reddit requires authentication for all API requests. Install with `pipx install rdt-cli`, then run `rdt login` (auto-extracts cookies from your browser). Your agent can then search with `rdt search "query"` and read full posts + comments with `rdt read POST_ID`.
+autoresearch uses [rdt-cli](https://github.com/public-clis/rdt-cli) for Reddit. Since 2024, Reddit requires authentication for all API requests. Install with `pipx install rdt-cli`, then run `rdt login` (auto-extracts cookies from your browser). Your agent can then search with `rdt search "query"` and read full posts + comments with `rdt read POST_ID`.
 </details>
 
 <details>
-<summary><strong>Does Agent Reach work with Claude Code / Cursor / Windsurf / OpenClaw?</strong></summary>
+<summary><strong>Does autoresearch work with Claude Code / Cursor / Windsurf / OpenClaw?</strong></summary>
 
-Yes! Agent Reach is an installer + configuration tool. Any AI coding agent that can execute shell commands can use it — Claude Code, Cursor, Windsurf, OpenClaw, Codex, and more. Just `pip install agent-reach`, run `agent-reach install`, and the agent can start using the upstream tools immediately.
+Yes! autoresearch is an installer + configuration tool. Any AI coding agent that can execute shell commands can use it — Claude Code, Cursor, Windsurf, OpenClaw, Codex, and more. Just `pip install autoresearch`, run `autoresearch install`, and the agent can start using the upstream tools immediately.
 </details>
 
 <details>
-<summary><strong>Is Agent Reach free? Any API costs?</strong></summary>
+<summary><strong>Is autoresearch free? Any API costs?</strong></summary>
 
 100% free and open source. All backends (twitter-cli, rdt-cli, xhs-cli, yt-dlp, Jina Reader, Exa) are free tools that don't require paid API keys. The only optional cost is a residential proxy (~$1/month) if you need Bilibili access from a server. Reddit works free via rdt-cli without any proxy.
 </details>
@@ -286,7 +286,7 @@ Yes! Agent Reach is an installer + configuration tool. Any AI coding agent that 
 <details>
 <summary><strong>Free alternative to Twitter API for web scraping?</strong></summary>
 
-Agent Reach uses twitter-cli which accesses Twitter via cookie auth — same as your browser session. No API fees, no rate limit tiers, no developer account needed. Supports search, read tweets, read profiles, and timelines.
+autoresearch uses twitter-cli which accesses Twitter via cookie auth — same as your browser session. No API fees, no rate limit tiers, no developer account needed. Supports search, read tweets, read profiles, and timelines.
 </details>
 
 <details>
@@ -357,7 +357,7 @@ For collaboration or questions, add me on WeChat — I'll invite you to the comm
 
 [OpenClaw for Enterprise](https://github.com/littleben/openclaw-for-enterprise) — Enterprise-grade multi-user OpenClaw deployment, use AI directly in Feishu/Lark, container isolation, one-command management.
 
-[OpenClaw on Tencent Cloud](https://www.tencentcloud.com/act/pro/intl-openclaw?referral_code=G76Y819A&lang=en&pg=) — One-click OpenClaw on Tencent Cloud: chat to connect Agent Reach & unlock internet power.
+[OpenClaw on Tencent Cloud](https://www.tencentcloud.com/act/pro/intl-openclaw?referral_code=G76Y819A&lang=en&pg=) — One-click OpenClaw on Tencent Cloud: chat to connect autoresearch & unlock internet power.
 
 ## Star History
 

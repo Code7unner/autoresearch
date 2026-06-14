@@ -1,17 +1,17 @@
-# Agent Reach — Update Guide
+# autoresearch — Update Guide
 
 ## For Humans
 
 Copy this to your AI Agent:
 
 ```
-Help me update Agent Reach: https://raw.githubusercontent.com/Code7unner/autoresearch/main/docs/update.md
+Help me update autoresearch: https://raw.githubusercontent.com/Code7unner/autoresearch/main/docs/update.md
 ```
 
 Or in English:
 
 ```
-Update Agent Reach: https://raw.githubusercontent.com/Code7unner/autoresearch/main/docs/update.md
+Update autoresearch: https://raw.githubusercontent.com/Code7unner/autoresearch/main/docs/update.md
 ```
 
 ---
@@ -20,21 +20,21 @@ Update Agent Reach: https://raw.githubusercontent.com/Code7unner/autoresearch/ma
 
 ### ⚠️ Workspace Rules
 
-**Never create files, clone repos, or run commands in the agent workspace.** Use `/tmp/` for temporary work and `~/.agent-reach/` for persistent data.
+**Never create files, clone repos, or run commands in the agent workspace.** Use `/tmp/` for temporary work and `~/.autoresearch/` for persistent data.
 
 ### Goal
 
-Update Agent Reach to the latest version, install any new upstream tools, migrate from deprecated tools, and verify everything works. The user should not need to do anything manually.
+Update autoresearch to the latest version, install any new upstream tools, migrate from deprecated tools, and verify everything works. The user should not need to do anything manually.
 
 ### Step 1: Check current version
 
 ```bash
-agent-reach check-update
+autoresearch check-update
 ```
 
 If it says "Already on the latest version", skip to Step 5 (verify). Otherwise continue.
 
-### Step 2: Update Agent Reach package
+### Step 2: Update autoresearch package
 
 ```bash
 pip install --upgrade https://github.com/Code7unner/autoresearch/archive/main.zip
@@ -73,13 +73,13 @@ which gh >/dev/null 2>&1 || echo "GitHub CLI not installed — see https://cli.g
 
 ### Step 4: Coexistence (DO NOT uninstall old tools)
 
-**IMPORTANT: Never uninstall any existing tools the user already has installed.** Old tools (bird, browser_cookie3, miku_ai, etc.) may still be working on the user's machine even if their upstream repos are archived or deleted. Agent Reach supports both old and new tools as fallback. Only install new tools alongside existing ones.
+**IMPORTANT: Never uninstall any existing tools the user already has installed.** Old tools (bird, browser_cookie3, miku_ai, etc.) may still be working on the user's machine even if their upstream repos are archived or deleted. autoresearch supports both old and new tools as fallback. Only install new tools alongside existing ones.
 
 ### Step 5: Verify
 
 ```bash
-agent-reach version
-agent-reach doctor
+autoresearch version
+autoresearch doctor
 ```
 
 Check the doctor output:
@@ -93,20 +93,20 @@ Check the doctor output:
 ### Step 6: Update SKILL.md (if installed)
 
 ```bash
-agent-reach install --skill-only 2>/dev/null || python3 -c "
+autoresearch install --skill-only 2>/dev/null || python3 -c "
 import importlib.resources, os
 try:
-    skill_pkg = importlib.resources.files('agent_reach').joinpath('skill')
+    skill_pkg = importlib.resources.files('autoresearch').joinpath('skill')
 except Exception:
     from pathlib import Path
-    skill_pkg = Path(os.path.dirname(os.path.abspath(__file__))).parent / 'agent_reach' / 'skill'
+    skill_pkg = Path(os.path.dirname(os.path.abspath(__file__))).parent / 'autoresearch' / 'skill'
 
 skill_md = skill_pkg.joinpath('SKILL.md').read_text(encoding='utf-8')
 refs_pkg = skill_pkg.joinpath('references')
 
-for base in [os.path.expanduser('~/.openclaw/skills/agent-reach'),
-             os.path.expanduser('~/.claude/skills/agent-reach'),
-             os.path.expanduser('~/.agents/skills/agent-reach')]:
+for base in [os.path.expanduser('~/.openclaw/skills/autoresearch'),
+             os.path.expanduser('~/.claude/skills/autoresearch'),
+             os.path.expanduser('~/.agents/skills/autoresearch')]:
     if os.path.isdir(base):
         with open(os.path.join(base, 'SKILL.md'), 'w', encoding='utf-8') as f:
             f.write(skill_md)
@@ -124,7 +124,7 @@ for base in [os.path.expanduser('~/.openclaw/skills/agent-reach'),
 ### Step 7: Report to user
 
 Tell the user:
-1. What version they're now on (`agent-reach version`)
+1. What version they're now on (`autoresearch version`)
 2. How many channels are available (count ✅ in doctor output)
 3. Any channels that need their action (e.g., `xhs login` for XiaoHongShu, browser cookies for Twitter)
 4. What changed in this update (major: Twitter/Reddit/XiaoHongShu upstream tools migrated for better stability)

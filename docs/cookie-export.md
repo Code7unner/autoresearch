@@ -18,7 +18,7 @@ Here's how to export cookies from your local computer — **fastest method first
 
 That's it! Your Agent will run:
 ```bash
-agent-reach configure twitter-cookies <your_pasted_string>
+autoresearch configure twitter-cookies <your_pasted_string>
 ```
 
 ### Sites to export:

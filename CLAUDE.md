@@ -1,28 +1,28 @@
 # CLAUDE.md
 
 ## Project
-Agent Reach — Python CLI + library that gives AI agents read/search access to 14+ internet platforms.
+autoresearch — Python CLI + library that gives AI agents read/search access to 17 internet platforms.
 Positioning: installer + doctor + config tool. NOT a wrapper — after install, agents call upstream tools directly.
-Repo: github.com/Code7unner/autoresearch | License: MIT | Version: 1.3.0
+Repo: github.com/Code7unner/autoresearch | License: MIT | Version: 1.4.0
 
 ## Commands
 - `pip install -e .` — Dev install
 - `pytest tests/ -v` — All tests
 - `pytest tests/test_cli.py -v` — CLI tests only
 - `bash test.sh` — Full integration test (creates venv, installs, runs doctor + channel tests)
-- `python -m agent_reach.cli doctor` — Run diagnostics
-- `python -m agent_reach.cli install --env=auto` — Auto-configure
+- `python -m autoresearch.cli doctor` — Run diagnostics
+- `python -m autoresearch.cli install --env=auto` — Auto-configure
 
 ## Structure
-- `agent_reach/cli.py` — CLI entry point (argparse)
-- `agent_reach/core.py` — Core read/search routing logic
-- `agent_reach/config.py` — Config management (YAML, env vars)
-- `agent_reach/doctor.py` — Diagnostics engine
-- `agent_reach/channels/` — One file per platform (twitter.py, reddit.py, youtube.py, etc.)
-- `agent_reach/channels/base.py` — Base channel class (all channels inherit from this)
-- `agent_reach/integrations/mcp_server.py` — MCP server integration
-- `agent_reach/skill/` — OpenClaw skill files
-- `agent_reach/guides/` — Usage guides
+- `autoresearch/cli.py` — CLI entry point (argparse)
+- `autoresearch/core.py` — Core read/search routing logic
+- `autoresearch/config.py` — Config management (YAML, env vars)
+- `autoresearch/doctor.py` — Diagnostics engine
+- `autoresearch/channels/` — One file per platform (twitter.py, reddit.py, youtube.py, etc.)
+- `autoresearch/channels/base.py` — Base channel class (all channels inherit from this)
+- `autoresearch/integrations/mcp_server.py` — MCP server integration
+- `autoresearch/skill/` — OpenClaw skill files
+- `autoresearch/guides/` — Usage guides
 - `tests/` — pytest tests
 - `config/mcporter.json` — MCP tool config
 
@@ -36,7 +36,7 @@ Repo: github.com/Code7unner/autoresearch | License: MIT | Version: 1.3.0
 
 ## Rules
 - NEVER modify upstream open source projects' source code
-- Agent Reach is a "glue layer" — only route and call, don't reimagine
+- autoresearch is a "glue layer" — only route and call, don't reimagine
 - Version in THREE places must match: `pyproject.toml`, `__init__.py`, `tests/test_cli.py`
 - Always new branch for changes, PR to main, never push to main directly
 - Run `pytest tests/ -v` before committing — all tests must pass

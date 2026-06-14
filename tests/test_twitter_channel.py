@@ -2,7 +2,7 @@
 
 from unittest.mock import patch, Mock
 
-from agent_reach.channels.twitter import TwitterChannel
+from autoresearch.channels.twitter import TwitterChannel
 
 
 def _cp(stdout="", stderr="", returncode=0):

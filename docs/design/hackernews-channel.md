@@ -2,13 +2,13 @@
 
 **Status:** Approved (brainstorming complete) — ready for TDD implementation
 **Date:** 2026-06-06
-**Scope:** Add a zero-config Hacker News channel to Agent-Reach (read + search).
+**Scope:** Add a zero-config Hacker News channel to autoresearch (read + search).
 
 ---
 
 ## Understanding Summary
 
-- **What:** A new `HackerNewsChannel` (`agent_reach/channels/hackernews.py`), tier 0, backed by the public Algolia HN Search API. Operations: `read(url)` (story + truncated comment tree) and `search(query)` (story list).
+- **What:** A new `HackerNewsChannel` (`autoresearch/channels/hackernews.py`), tier 0, backed by the public Algolia HN Search API. Operations: `read(url)` (story + truncated comment tree) and `search(query)` (story list).
 - **Why:** Hacker News is a top-requested data source for AI agents; it strengthens the "zero config" positioning (no key, no login) — raising zero-config channels from 8 to 9.
 - **Who:** AI agents (via the installed skill, which documents `curl` commands) and developers calling the channel from CLI/Python.
 - **Key constraints:** Stay within the glue-layer philosophy — only call the public API, never reimplement or hack internals. Mirror existing patterns (`v2ex.py`, `format_xhs_result`). Register in `ALL_CHANNELS`; pass `test_channel_contracts.py`; all tests green before commit; new branch → PR to main.
@@ -31,16 +31,16 @@
 | 4 | Algolia API | Official Firebase v0 | Whole comment tree in one call + real search; Firebase = N+1 |
 | 5 | Truncated tree + limits | Flat list / full thread | Spirit of `format_xhs_result`; protect context, keep structure |
 | 6 | `format hn` with auto-detection | Tree-only (read) | One pipe for any HN curl; uniform for the agent |
-| 7 | Token economy via `agent-reach format hn` | Shaping inside `read()` | `format xhs` precedent; agent hits API directly (glue) |
+| 7 | Token economy via `autoresearch format hn` | Shaping inside `read()` | `format xhs` precedent; agent hits API directly (glue) |
 | 8 | TDD on mocked `urllib` | Network integration tests | Determinism; matches existing test pattern |
 
 ---
 
 ## Final Design
 
-### 1. Channel: `agent_reach/channels/hackernews.py`
+### 1. Channel: `autoresearch/channels/hackernews.py`
 
-Mirrors `v2ex.py` (module-level `_get_json`, `_UA="agent-reach/1.0"`, `_TIMEOUT=10`).
+Mirrors `v2ex.py` (module-level `_get_json`, `_UA="autoresearch/1.0"`, `_TIMEOUT=10`).
 
 ```python
 class HackerNewsChannel(Channel):
@@ -83,14 +83,14 @@ CLI wiring: `format` subparser `choices=["xhs"]` → `["xhs", "hn"]`; `_cmd_form
 
 - `channels/__init__.py`: import + add `HackerNewsChannel()` to `ALL_CHANNELS`.
 - `doctor.py`: auto-grouped under Tier 0 (doctor iterates `ALL_CHANNELS`).
-- `skill/references/social.md`: new "Hacker News (public API)" section with curl + `| agent-reach format hn` examples (mirrors the V2EX section).
+- `skill/references/social.md`: new "Hacker News (public API)" section with curl + `| autoresearch format hn` examples (mirrors the V2EX section).
 - `SKILL.md` / `SKILL_en.md`: add triggers `hackernews / hn / ycombinator`.
 - No `guides/setup-*.md` (zero-config).
 
 Agent usage:
 ```bash
-curl -s "http://hn.algolia.com/api/v1/items/ID"                | agent-reach format hn
-curl -s "http://hn.algolia.com/api/v1/search?query=Q&tags=story" | agent-reach format hn
+curl -s "http://hn.algolia.com/api/v1/items/ID"                | autoresearch format hn
+curl -s "http://hn.algolia.com/api/v1/search?query=Q&tags=story" | autoresearch format hn
 ```
 
 ### 4. Testing strategy (TDD, red → green → refactor)

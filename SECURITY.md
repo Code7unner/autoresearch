@@ -8,7 +8,7 @@
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability in Agent-Reach, please report 
+If you discover a security vulnerability in autoresearch, please report 
 it responsibly by using GitHub's private security advisory feature:
 
 👉 **[Report a vulnerability](https://github.com/Code7unner/autoresearch/security/advisories/new)**
