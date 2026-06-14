@@ -2,7 +2,7 @@
 name: agent-reach
 description: >
   Give your AI agent eyes to see the entire internet.
-  Search and read 18 platforms: Twitter/X, Reddit, Hacker News, YouTube, GitHub, Bilibili,
+  Search and read 17 platforms: Twitter/X, Reddit, Hacker News, YouTube, GitHub, Bilibili,
   XiaoHongShu, Douyin, Weibo, WeChat Articles, Xiaoyuzhou Podcast, LinkedIn,
   V2EX, Xueqiu, RSS, Exa web search, and any web page.
   Zero config for 8 channels. Use when the user asks to search, read, or interact
@@ -20,7 +20,7 @@ metadata:
 
 # Agent Reach — Usage Guide
 
-Upstream tools for 18 platforms. Call them directly.
+Upstream tools for 17 platforms. Call them directly.
 
 Run `agent-reach doctor` to check which channels are available.
 
@@ -41,14 +41,18 @@ mcporter call 'exa.web_search_exa(query: "query", numResults: 5)'
 mcporter call 'exa.get_code_context_exa(query: "code question", tokensNum: 3000)'
 ```
 
-## Twitter/X (bird)
+## Twitter/X (twitter-cli)
 
 ```bash
-bird search "query" -n 10                  # search
-bird read URL_OR_ID                        # read tweet (supports /status/ and /article/ URLs)
-bird user-tweets @username -n 20           # user timeline
-bird thread URL_OR_ID                      # full thread
+twitter search "query" -n 10               # search
+twitter tweet URL_OR_ID                    # read a tweet + its replies (the "thread")
+twitter user-posts @username -n 20         # user timeline
+twitter article URL_OR_ID                  # read a Twitter Article
 ```
+
+> The installed binary is `twitter` (twitter-cli). Add `-c` for compact, LLM-friendly
+> output, e.g. `twitter -c search "query" -n 10`. If you instead have the optional
+> `bird` CLI (`@steipete/bird`), Agent Reach also detects and uses it as a fallback.
 
 ## YouTube (yt-dlp)
 
