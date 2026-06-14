@@ -1,9 +1,7 @@
 {
   "permissions": {
     "allow": [
-      "WebFetch(domain:community.groq.com)",
-      "Bash(python3 -c \"import agent_reach.cookie_extract as c; print\\('import OK'\\); print\\('has _sync_bird:', hasattr\\(c,'_sync_bird_env'\\) or hasattr\\(c,'_sync_bird_credentials'\\)\\)\")",
-      "Bash(python3 -m pytest tests/ -q)"
+      "WebFetch(domain:community.groq.com)"
     ]
   }
 }
