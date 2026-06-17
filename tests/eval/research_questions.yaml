@@ -17,3 +17,12 @@
 - id: vectordb
   query: "postgres vector database"
   expected_signals: ["pgvector", "postgres", "qdrant"]
+# Niche / opinion questions — designed to need breadth: signals span sources that a
+# single channel (e.g. only GitHub, or only HN) would not all surface. These give the
+# metric headroom so the loop can show the value of adding channels.
+- id: agent-opinions
+  query: "are AI coding agents overhyped"
+  expected_signals: ["agent", "claude", "hype"]
+- id: nanochat
+  query: "karpathy nanochat"
+  expected_signals: ["nanochat", "karpathy", "llm"]

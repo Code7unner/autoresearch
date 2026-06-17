@@ -8,10 +8,10 @@
   },
   {
     "source": "exa",
-    "title": "huggingface/lighteval",
-    "url": "https://github.com/huggingface/lighteval/",
+    "title": "DeepEval - The LLM Evaluation Framework",
+    "url": "https://deepeval.com/",
     "snippet": "",
-    "date": "2024-01-26T13:15:39.000Z"
+    "date": "N/A"
   },
   {
     "source": "exa",
@@ -22,16 +22,16 @@
   },
   {
     "source": "exa",
+    "title": "huggingface/lighteval",
+    "url": "https://github.com/huggingface/lighteval/",
+    "snippet": "",
+    "date": "2024-01-26T13:15:39.000Z"
+  },
+  {
+    "source": "exa",
     "title": "Aleph-Alpha-Research/eval-framework",
     "url": "https://github.com/Aleph-Alpha-Research/eval-framework",
     "snippet": "",
     "date": "2025-08-17T22:02:29.000Z"
-  },
-  {
-    "source": "exa",
-    "title": "ftnext/deepeval",
-    "url": "https://github.com/ftnext/deepeval",
-    "snippet": "",
-    "date": "2026-02-22T14:54:13.000Z"
   }
 ]

@@ -1,0 +1,37 @@
+[
+  {
+    "source": "twitter",
+    "title": "@GoogleResearch: ReasoningBank, a novel agent memory framework, enables LLM a",
+    "url": "https://x.com/GoogleResearch/status/2046631948437921801",
+    "snippet": "ReasoningBank, a novel agent memory framework, enables LLM agents to continuously learn from both successful &amp; failed experiences. Ou...",
+    "date": "Apr 21 16:47"
+  },
+  {
+    "source": "twitter",
+    "title": "@uzpg_: In LLM optimization an agent iteratively optimizes a target",
+    "url": "https://x.com/uzpg_/status/2067051818623152221",
+    "snippet": "In LLM optimization an agent iteratively optimizes a target metric. In our settings, agent learns the preferences of a blackbox judge by ...",
+    "date": "Jun 17 01:08"
+  },
+  {
+    "source": "twitter",
+    "title": "@akshay_pachaar: Train your own LLM from scratch.  This repo builds a GPT-sty",
+    "url": "https://x.com/akshay_pachaar/status/2066551571031458086",
+    "snippet": "Train your own LLM from scratch.  This repo builds a GPT-style transformer from the ground up, without using any high-level libraries.  Y...",
+    "date": "Jun 15 16:01"
+  },
+  {
+    "source": "twitter",
+    "title": "@vicky_grok: Anthropic pays $750,000+ a year for engineers who can build",
+    "url": "https://x.com/vicky_grok/status/2066060705955246082",
+    "snippet": "Anthropic pays $750,000+ a year for engineers who can build LLM architectures from scratch. Stanford taught the entire thing in 1 hour le...",
+    "date": "Jun 14 07:30"
+  },
+  {
+    "source": "twitter",
+    "title": "@AdamRLucek: These constraints shape how online evals are designed. They",
+    "url": "https://x.com/AdamRLucek/status/2066942970675274202",
+    "snippet": "These constraints shape how online evals are designed. They tend to fall into two categories:  1. Heuristic evals: written as code that r...",
+    "date": "Jun 16 17:56"
+  }
+]

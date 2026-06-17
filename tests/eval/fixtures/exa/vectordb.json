@@ -8,13 +8,6 @@
   },
   {
     "source": "exa",
-    "title": "The Postgres Vector database and AI Toolkit - Supabase",
-    "url": "https://supabase.com/modules/vector",
-    "snippet": "",
-    "date": "N/A"
-  },
-  {
-    "source": "exa",
     "title": "Enable and use pgvector in Azure Database for PostgreSQL",
     "url": "https://learn.microsoft.com/en-us/azure/postgresql/extensions/how-to-use-pgvector",
     "snippet": "",
@@ -29,9 +22,16 @@
   },
   {
     "source": "exa",
-    "title": "pgvector Guide: Vector Search and RAG in PostgreSQL – Encore Blog",
-    "url": "https://encore.dev/blog/you-probably-dont-need-a-vector-database",
+    "title": "The Postgres Vector database and AI Toolkit - Supabase",
+    "url": "https://supabase.com/modules/vector",
     "snippet": "",
-    "date": "2026-03-09T00:00:00.000Z"
+    "date": "N/A"
+  },
+  {
+    "source": "exa",
+    "title": "vector: Open-source vector similarity search for Postgres / PostgreSQL Extension Network",
+    "url": "https://pgxn.org/dist/vector",
+    "snippet": "",
+    "date": "N/A"
   }
 ]
