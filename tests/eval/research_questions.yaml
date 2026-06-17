@@ -1,0 +1,15 @@
+# Fixed benchmark for the research-command build loop (deterministic, offline).
+# coverage_score = mean over questions of (matched expected_signals / total).
+# Signals are lowercase substrings checked against title+snippet+url of any result.
+- id: mcp
+  query: "model context protocol"
+  expected_signals: ["modelcontextprotocol", "anthropic", "specification"]
+- id: rust-async
+  query: "rust async runtime"
+  expected_signals: ["tokio", "runtime", "async-std"]
+- id: llm-eval
+  query: "llm evaluation framework"
+  expected_signals: ["openai", "evaluate", "benchmark"]
+- id: vectordb
+  query: "postgres vector database"
+  expected_signals: ["pgvector", "postgres", "pinecone"]
