@@ -1,1 +1,37 @@
-[{"source":"github","title":"pgvector/pgvector","url":"https://github.com/pgvector/pgvector","snippet":"Open-source vector similarity search for Postgres","date":""}]
+[
+  {
+    "source": "github",
+    "title": "codingforentrepreneurs/reflex-gpt",
+    "url": "https://github.com/codingforentrepreneurs/reflex-gpt",
+    "snippet": "Build a Python Reflex App with OpenAI, a Neon Postgres + Vector Database, and Deploy to a Virtual Machine",
+    "date": "2026-02-18T10:41:03Z"
+  },
+  {
+    "source": "github",
+    "title": "khwerhahn/MindMatrix",
+    "url": "https://github.com/khwerhahn/MindMatrix",
+    "snippet": "Obsidian plugin to push vault notes to a postgres vector database to use in personal ai assistants",
+    "date": "2026-03-09T21:30:02Z"
+  },
+  {
+    "source": "github",
+    "title": "robertoperuzzo/ddev-pgvector",
+    "url": "https://github.com/robertoperuzzo/ddev-pgvector",
+    "snippet": "The Postgres vector database service for DDEV",
+    "date": "2025-10-10T13:35:43Z"
+  },
+  {
+    "source": "github",
+    "title": "michaelJyee/openai-vector-database",
+    "url": "https://github.com/michaelJyee/openai-vector-database",
+    "snippet": "TabsOrSpaces Project - openAi embeddings + searching postgres vector database",
+    "date": "2023-03-19T22:10:05Z"
+  },
+  {
+    "source": "github",
+    "title": "adilcjr/flowise-pgvector",
+    "url": "https://github.com/adilcjr/flowise-pgvector",
+    "snippet": "Docker compose ready to run Flowise and Postgres vector database",
+    "date": "2026-03-18T12:11:36Z"
+  }
+]

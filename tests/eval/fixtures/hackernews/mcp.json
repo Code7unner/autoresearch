@@ -1,1 +1,37 @@
-[{"source":"hackernews","title":"Model Context Protocol","url":"https://www.anthropic.com/news/model-context-protocol","snippet":"","date":""}]
+[
+  {
+    "source": "hackernews",
+    "title": "Model Context Protocol",
+    "url": "https://www.anthropic.com/news/model-context-protocol",
+    "snippet": "",
+    "date": "2024-11-25T16:14:22Z"
+  },
+  {
+    "source": "hackernews",
+    "title": "Donating the Model Context Protocol and establishing the Agentic AI Foundation",
+    "url": "https://www.anthropic.com/news/donating-the-model-context-protocol-and-establishing-of-the-agentic-ai-foundation",
+    "snippet": "",
+    "date": "2025-12-09T17:05:42Z"
+  },
+  {
+    "source": "hackernews",
+    "title": "Adventures in Symbolic Algebra with Model Context Protocol",
+    "url": "https://www.stephendiehl.com/posts/computer_algebra_mcp/",
+    "snippet": "",
+    "date": "2025-05-22T13:59:25Z"
+  },
+  {
+    "source": "hackernews",
+    "title": "Show HN: Mcp-Agent – Build effective agents with Model Context Protocol",
+    "url": "https://github.com/lastmile-ai/mcp-agent",
+    "snippet": "Hey HN, I spent my xmas break building an agent framework called mcp-agent [1](<a href=\"https:&#x2F;&#x2F;github.com&#x2F;lastmile-ai&#x2F;mcp-agent\">https:&#x2F;&#x2F;github.com&#x2F;lastmile-ai&#x2F;mcp-agent</a>) for Model Context Protocol [2]. It makes it easy to build AI app",
+    "date": "2025-01-29T16:26:07Z"
+  },
+  {
+    "source": "hackernews",
+    "title": "AbletonMCP – Ableton Live Model Context Protocol Integration",
+    "url": "https://github.com/ahujasid/ableton-mcp",
+    "snippet": "",
+    "date": "2025-03-31T09:09:15Z"
+  }
+]

@@ -1,1 +1,37 @@
-[{"source":"exa","title":"async-std vs tokio","url":"https://blog.example/async-std-vs-tokio","snippet":"comparing async-std and tokio runtimes","date":""}]
+[
+  {
+    "source": "exa",
+    "title": "Tokio - An asynchronous Rust runtime",
+    "url": "https://tokio.rs/?lang=en",
+    "snippet": "",
+    "date": "2026-03-18T18:21:09.000Z"
+  },
+  {
+    "source": "exa",
+    "title": "tokio - Rust",
+    "url": "https://docs.rs/tokio/latest/tokio/",
+    "snippet": "",
+    "date": "N/A"
+  },
+  {
+    "source": "exa",
+    "title": "The Async Ecosystem - Asynchronous Programming in Rust",
+    "url": "https://rust-lang.github.io/async-book/08_ecosystem/00_chapter.html",
+    "snippet": "",
+    "date": "N/A"
+  },
+  {
+    "source": "exa",
+    "title": "The State of Async Rust: Runtimes - Corrode.dev",
+    "url": "https://corrode.dev/blog/async/",
+    "snippet": "",
+    "date": "2024-02-21T07:53:03.000Z"
+  },
+  {
+    "source": "exa",
+    "title": "tokio::runtime - Rust",
+    "url": "https://docs.rs/tokio_wasi/latest/tokio/runtime/index.html",
+    "snippet": "",
+    "date": "N/A"
+  }
+]
