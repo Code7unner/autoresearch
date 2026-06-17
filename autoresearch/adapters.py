@@ -44,9 +44,11 @@ def search_hackernews(question: str, limit: int) -> list:
 
 def search_github(question: str, limit: int) -> list:
     """GitHub repositories via the `gh` CLI."""
+    # `--` ends option parsing so a query starting with `-` can't smuggle a flag.
     out = subprocess.run(
-        ["gh", "search", "repos", question, "--limit", str(limit),
-         "--json", "fullName,description,url,stargazersCount,updatedAt"],
+        ["gh", "search", "repos", "--limit", str(limit),
+         "--json", "fullName,description,url,stargazersCount,updatedAt",
+         "--", question],
         capture_output=True, encoding="utf-8", errors="replace", timeout=30,
     )
     items = json.loads(out.stdout or "[]")
@@ -61,9 +63,11 @@ def search_github(question: str, limit: int) -> list:
 
 def search_exa(question: str, limit: int) -> list:
     """Web search via Exa MCP (mcporter). Parses mcporter's text output."""
+    # Escape backslash + double-quote so the query can't break out of the DSL string.
+    safe_q = question.replace("\\", "\\\\").replace('"', '\\"')
     out = subprocess.run(
         ["mcporter", "call",
-         f'exa.web_search_exa(query: "{question}", numResults: {limit})'],
+         f'exa.web_search_exa(query: "{safe_q}", numResults: {int(limit)})'],
         capture_output=True, encoding="utf-8", errors="replace", timeout=40,
     )
     rows, cur = [], {}
@@ -83,8 +87,9 @@ def search_exa(question: str, limit: int) -> list:
 
 def search_twitter(question: str, limit: int) -> list:
     """Recent tweets via twitter-cli (`twitter -c search`). Needs cookies configured."""
+    # `--` ends option parsing so a query starting with `-` can't smuggle a flag.
     out = subprocess.run(
-        ["twitter", "-c", "search", question, "-n", str(limit)],
+        ["twitter", "-c", "search", "-n", str(limit), "--", question],
         capture_output=True, encoding="utf-8", errors="replace", timeout=30,
     )
     items = json.loads(out.stdout or "[]")

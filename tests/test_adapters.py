@@ -30,3 +30,49 @@ def test_twitter_adapter_normalizes_rows(monkeypatch):
 
 def test_twitter_in_registry():
     assert "twitter" in A.SEARCH_ADAPTERS
+
+
+def test_github_adapter_neutralizes_flag_smuggling(monkeypatch):
+    """A query starting with '-' must not be parsed as a gh flag."""
+    captured = {}
+
+    def fake_run(cmd, **kw):
+        captured["cmd"] = cmd
+        return SimpleNamespace(stdout="[]", stderr="")
+
+    monkeypatch.setattr(A.subprocess, "run", fake_run)
+    A.search_github("--version", 5)
+    cmd = captured["cmd"]
+    # The untrusted query must come after a `--` end-of-options separator.
+    assert "--" in cmd
+    assert cmd.index("--") < cmd.index("--version")
+
+
+def test_twitter_adapter_neutralizes_flag_smuggling(monkeypatch):
+    captured = {}
+
+    def fake_run(cmd, **kw):
+        captured["cmd"] = cmd
+        return SimpleNamespace(stdout="[]", stderr="")
+
+    monkeypatch.setattr(A.subprocess, "run", fake_run)
+    A.search_twitter("-n 9999", 5)
+    cmd = captured["cmd"]
+    assert "--" in cmd
+    assert cmd.index("--") < cmd.index("-n 9999")
+
+
+def test_exa_adapter_escapes_quotes(monkeypatch):
+    """A query containing a double quote must not break out of the DSL string."""
+    captured = {}
+
+    def fake_run(cmd, **kw):
+        captured["cmd"] = cmd
+        return SimpleNamespace(stdout="", stderr="")
+
+    monkeypatch.setattr(A.subprocess, "run", fake_run)
+    A.search_exa('foo") + evil("', 5)
+    call_arg = captured["cmd"][2]
+    # Raw unescaped quote sequence must not appear; it should be backslash-escaped.
+    assert '") + evil("' not in call_arg
+    assert '\\"' in call_arg
