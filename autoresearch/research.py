@@ -12,7 +12,8 @@ Adapters are injectable so this module is testable offline; the live registry li
 in ``adapters.py`` / is resolved from the active channels.
 """
 
-from concurrent.futures import ThreadPoolExecutor
+import threading
+import time
 from typing import Callable, Dict, List, Optional
 from urllib.parse import urlsplit
 
@@ -61,21 +62,36 @@ def run_research(
 
     raw: Dict[str, List[dict]] = {}
     errors: Dict[str, str] = {}
+    lock = threading.Lock()
 
-    pool = ThreadPoolExecutor(max_workers=max(1, len(selected)))
-    try:
-        futures = {c: pool.submit(adapters[c], question, limit) for c in selected}
-        # Wait on each future with its own timeout. Futures run concurrently, so the
-        # total wait is bounded by the slowest channel, not the sum.
-        for channel, fut in futures.items():
-            try:
-                rows = fut.result(timeout=timeout) or []
-                raw[channel] = [_normalize_row(r) for r in rows[:limit]]
-            except Exception as exc:  # timeout, network, parse — all become partial
+    def _worker(channel: str) -> None:
+        try:
+            rows = adapters[channel](question, limit) or []
+            normalized = [_normalize_row(r) for r in rows[:limit]]
+            with lock:
+                raw[channel] = normalized
+        except Exception as exc:  # network, parse, nonzero exit — all become partial
+            with lock:
                 errors[channel] = f"{type(exc).__name__}: {exc}" if str(exc) else type(exc).__name__
-    finally:
-        # Don't block on a slow/hung adapter; cancel anything not yet started.
-        pool.shutdown(wait=False, cancel_futures=True)
+
+    # One daemon thread per channel: they run concurrently, the wait shares a single
+    # deadline (bounded by the slowest channel, not the sum), and being daemon they
+    # never block interpreter exit if an adapter hangs past the timeout.
+    threads = [(c, threading.Thread(target=_worker, args=(c,), daemon=True)) for c in selected]
+    for _, t in threads:
+        t.start()
+    deadline = time.monotonic() + timeout
+    for channel, t in threads:
+        t.join(max(0.0, deadline - time.monotonic()))
+
+    # Snapshot under the lock so a still-running (timed-out) worker can't mutate the
+    # maps while we build the response.
+    with lock:
+        raw = dict(raw)
+        for channel in selected:
+            if channel not in raw and channel not in errors:
+                errors[channel] = f"TimeoutError: exceeded {timeout:g}s"
+        errors = dict(errors)
 
     # Dedup across channels by normalized URL, deterministic by sorted channel order.
     seen = set()

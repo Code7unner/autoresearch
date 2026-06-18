@@ -111,3 +111,42 @@ def test_cli_research_prints_json(capsys, monkeypatch):
     out = json.loads(capsys.readouterr().out)
     assert out["query"] == "mcp servers"
     assert out["results"]["github"][0]["title"] == "repo"
+
+
+def test_total_wait_bounded_by_single_deadline_not_sum(monkeypatch):
+    """Multiple slow channels must share ONE deadline, not stack N x timeout."""
+    import time
+
+    def slow(question, limit):
+        time.sleep(1.0)
+        return [{"source": "s", "title": "x", "url": "http://x/1"}]
+
+    adapters = {"a": slow, "b": slow, "c": slow}
+    t0 = time.time()
+    out = run_research("q", adapters=adapters, timeout=0.3)
+    elapsed = time.time() - t0
+    # One shared deadline => ~0.3s. Cumulative per-channel waits => ~0.9s+. Guard tight.
+    assert elapsed < 0.7, f"waits stacked: {elapsed:.2f}s"
+    assert set(out["_meta"]["errors"]) == {"a", "b", "c"}
+
+
+def test_slow_channel_does_not_block_process_exit():
+    """A channel slower than the timeout must not hang interpreter exit
+    (worker threads must be daemon). Regression for the atexit-join hang."""
+    import subprocess
+    import sys
+    import time
+
+    script = (
+        "import time\n"
+        "from autoresearch.research import run_research\n"
+        "run_research('q', adapters={'slow': lambda q, n: time.sleep(30)}, timeout=0.5)\n"
+        "print('done')\n"
+    )
+    t0 = time.time()
+    proc = subprocess.run([sys.executable, "-c", script],
+                          capture_output=True, text=True, timeout=15)
+    elapsed = time.time() - t0
+    assert "done" in proc.stdout
+    # Without daemon threads the process would hang ~30s on atexit join.
+    assert elapsed < 8, f"process hung at exit: {elapsed:.2f}s"

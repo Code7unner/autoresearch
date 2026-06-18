@@ -14,7 +14,7 @@ def test_twitter_adapter_normalizes_rows(monkeypatch):
     ]
 
     def fake_run(cmd, **kw):
-        return SimpleNamespace(stdout=json.dumps(sample), stderr="")
+        return SimpleNamespace(returncode=0, stdout=json.dumps(sample), stderr="")
 
     monkeypatch.setattr(A.subprocess, "run", fake_run)
     rows = A.search_twitter("rust async", 5)
@@ -38,7 +38,7 @@ def test_github_adapter_neutralizes_flag_smuggling(monkeypatch):
 
     def fake_run(cmd, **kw):
         captured["cmd"] = cmd
-        return SimpleNamespace(stdout="[]", stderr="")
+        return SimpleNamespace(returncode=0, stdout="[]", stderr="")
 
     monkeypatch.setattr(A.subprocess, "run", fake_run)
     A.search_github("--version", 5)
@@ -53,7 +53,7 @@ def test_twitter_adapter_neutralizes_flag_smuggling(monkeypatch):
 
     def fake_run(cmd, **kw):
         captured["cmd"] = cmd
-        return SimpleNamespace(stdout="[]", stderr="")
+        return SimpleNamespace(returncode=0, stdout="[]", stderr="")
 
     monkeypatch.setattr(A.subprocess, "run", fake_run)
     A.search_twitter("-n 9999", 5)
@@ -68,7 +68,7 @@ def test_exa_adapter_escapes_quotes(monkeypatch):
 
     def fake_run(cmd, **kw):
         captured["cmd"] = cmd
-        return SimpleNamespace(stdout="", stderr="")
+        return SimpleNamespace(returncode=0, stdout="", stderr="")
 
     monkeypatch.setattr(A.subprocess, "run", fake_run)
     A.search_exa('foo") + evil("', 5)
@@ -76,3 +76,23 @@ def test_exa_adapter_escapes_quotes(monkeypatch):
     # Raw unescaped quote sequence must not appear; it should be backslash-escaped.
     assert '") + evil("' not in call_arg
     assert '\\"' in call_arg
+
+
+def test_github_adapter_raises_on_nonzero_exit(monkeypatch):
+    """A failed gh call (e.g. not authenticated) must raise, not return []."""
+    def fake_run(cmd, **kw):
+        return SimpleNamespace(returncode=1, stdout="", stderr="gh: not logged in")
+    monkeypatch.setattr(A.subprocess, "run", fake_run)
+    import pytest
+    with pytest.raises(Exception) as ei:
+        A.search_github("anything", 5)
+    assert "not logged in" in str(ei.value)
+
+
+def test_twitter_adapter_raises_on_nonzero_exit(monkeypatch):
+    def fake_run(cmd, **kw):
+        return SimpleNamespace(returncode=2, stdout="", stderr="auth failed")
+    monkeypatch.setattr(A.subprocess, "run", fake_run)
+    import pytest
+    with pytest.raises(Exception):
+        A.search_twitter("anything", 5)

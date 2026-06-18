@@ -25,6 +25,15 @@ def _get_json(url: str, timeout: int = 10):
         return json.loads(resp.read().decode("utf-8"))
 
 
+def _check(out, tool: str):
+    """Raise on a nonzero CLI exit so the orchestrator reports an honest error
+    instead of a silent empty result (e.g. `gh` not authenticated)."""
+    if out.returncode != 0:
+        msg = (out.stderr or out.stdout or "").strip()[:200]
+        raise RuntimeError(f"{tool} exited {out.returncode}: {msg}" if msg
+                           else f"{tool} exited {out.returncode}")
+
+
 def search_hackernews(question: str, limit: int) -> list:
     """Hacker News stories via the public Algolia API (no auth)."""
     q = urllib.parse.quote(question)
@@ -51,6 +60,7 @@ def search_github(question: str, limit: int) -> list:
          "--", question],
         capture_output=True, encoding="utf-8", errors="replace", timeout=30,
     )
+    _check(out, "gh")
     items = json.loads(out.stdout or "[]")
     return [{
         "source": "github",
@@ -70,6 +80,7 @@ def search_exa(question: str, limit: int) -> list:
          f'exa.web_search_exa(query: "{safe_q}", numResults: {int(limit)})'],
         capture_output=True, encoding="utf-8", errors="replace", timeout=40,
     )
+    _check(out, "mcporter")
     rows, cur = [], {}
     for line in (out.stdout or "").splitlines():
         if line.startswith("Title:"):
@@ -92,6 +103,7 @@ def search_twitter(question: str, limit: int) -> list:
         ["twitter", "-c", "search", "-n", str(limit), "--", question],
         capture_output=True, encoding="utf-8", errors="replace", timeout=30,
     )
+    _check(out, "twitter")
     items = json.loads(out.stdout or "[]")
     rows = []
     for it in items[:limit]:
