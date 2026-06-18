@@ -13,16 +13,6 @@ channels (web, douyin, xiaoyuzhou, wechat-read) are intentionally absent.
 
 import json
 import subprocess
-import urllib.parse
-import urllib.request
-
-_UA = "autoresearch/1.0"
-
-
-def _get_json(url: str, timeout: int = 10):
-    req = urllib.request.Request(url, headers={"User-Agent": _UA})
-    with urllib.request.urlopen(req, timeout=timeout) as resp:
-        return json.loads(resp.read().decode("utf-8"))
 
 
 def _check(out, tool: str):
@@ -35,17 +25,23 @@ def _check(out, tool: str):
 
 
 def search_hackernews(question: str, limit: int) -> list:
-    """Hacker News stories via the public Algolia API (no auth)."""
-    q = urllib.parse.quote(question)
-    data = _get_json(f"https://hn.algolia.com/api/v1/search?query={q}&tags=story")
+    """Hacker News stories — delegated to the HackerNews channel's own search.
+
+    Routes through ``HackerNewsChannel.search_stories`` (the single Algolia source of
+    truth) and maps its rows into the research schema, instead of re-implementing the
+    API call here (which had drifted to a different scheme + duplicate JSON fetch)."""
+    from autoresearch.channels.hackernews import HackerNewsChannel
+
     rows = []
-    for hit in (data.get("hits") or [])[:limit]:
-        url = hit.get("url") or f"https://news.ycombinator.com/item?id={hit.get('objectID')}"
+    for hit in HackerNewsChannel().search_stories(question, limit)[:limit]:
+        object_id = hit.get("objectID")
+        url = hit.get("url") or (
+            f"https://news.ycombinator.com/item?id={object_id}" if object_id else "")
         rows.append({
             "source": "hackernews",
             "title": hit.get("title") or "",
             "url": url,
-            "snippet": (hit.get("story_text") or "")[:280],
+            "snippet": "",
             "date": hit.get("created_at") or "",
         })
     return rows
@@ -127,9 +123,68 @@ SEARCH_ADAPTERS = {
     "twitter": search_twitter,
 }
 
+# The research adapter for Exa is keyed "exa"; doctor registers the channel as
+# "exa_search". Map doctor/CLI names onto adapter names so a user can write either.
+_DOCTOR_TO_ADAPTER = {"exa_search": "exa"}
+
+
+def _to_adapter_name(name: str) -> str:
+    return _DOCTOR_TO_ADAPTER.get(name, name)
+
 
 def live_adapters(channels=None) -> dict:
     """Resolve the adapter registry, optionally narrowed to ``channels``."""
     if channels is None:
         return dict(SEARCH_ADAPTERS)
     return {c: SEARCH_ADAPTERS[c] for c in channels if c in SEARCH_ADAPTERS}
+
+
+def plan_research_channels(requested, active, searchable, known):
+    """Decide which channels to query, skip, or flag — given plain name sets.
+
+    Pure (no doctor/Config dependency) so it is unit-testable offline.
+
+    Args:
+        requested: explicit ``--channels`` list, or ``None`` for the default run.
+        active:    channel names usable right now (doctor status "ok").
+        searchable: channel names that have a search adapter.
+        known:     every registered channel name (searchable or not).
+
+    Returns ``(run, skipped, unknown)``, each a sorted list:
+        run:     channels to actually query.
+        skipped: searchable channels skipped because inactive (default run only).
+        unknown: requested names that are not searchable channels — covers both
+                 real-but-not-searchable (e.g. ``reddit``) and outright typos.
+    """
+    searchable, active = set(searchable), set(active)
+    if requested is None:
+        # Default = active searchable channels; the rest are skipped, not errored.
+        run = searchable & active
+        return sorted(run), sorted(searchable - active), []
+    # Explicit request overrides the active filter: the user asked for these by name,
+    # so run them even if doctor thinks they're inactive and let any real error surface.
+    run, unknown = set(), set()
+    for name in requested:
+        (run if name in searchable else unknown).add(name)
+    return sorted(run), [], sorted(unknown)
+
+
+def resolve_research(channels=None):
+    """Doctor-aware resolution of a research run into ``(adapters, skipped, unknown)``.
+
+    Probes channel health via ``doctor.check_all`` so a default run targets only
+    *active* channels (the locked design), and surfaces inactive/unknown names instead
+    of letting them fail with cryptic per-channel errors.
+    """
+    from autoresearch.config import Config
+    from autoresearch.doctor import check_all
+
+    results = check_all(Config())
+    active = {_to_adapter_name(n) for n, r in results.items() if r.get("status") == "ok"}
+    known = {_to_adapter_name(n) for n in results}
+    searchable = set(SEARCH_ADAPTERS)
+    requested = [_to_adapter_name(c) for c in channels] if channels else None
+
+    run, skipped, unknown = plan_research_channels(requested, active, searchable, known)
+    adapters = {n: SEARCH_ADAPTERS[n] for n in run}
+    return adapters, skipped, unknown

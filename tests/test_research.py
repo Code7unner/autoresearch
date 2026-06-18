@@ -9,6 +9,8 @@ schema. Adapters are injected so these tests are fully deterministic and offline
 
 import time
 
+import pytest
+
 from autoresearch.research import run_research, normalize_url
 
 
@@ -101,9 +103,12 @@ def test_cli_research_prints_json(capsys, monkeypatch):
     import autoresearch.cli as cli
 
     monkeypatch.setattr(
-        adapters_mod, "live_adapters",
-        lambda channels=None: {"github": _fake(
-            [{"source": "github", "title": "repo", "url": "http://gh/1"}])},
+        adapters_mod, "resolve_research",
+        lambda channels=None: (
+            {"github": _fake([{"source": "github", "title": "repo", "url": "http://gh/1"}])},
+            [],
+            [],
+        ),
     )
     monkeypatch.setattr("sys.argv", ["autoresearch", "research", "mcp servers"])
     cli.main()
@@ -111,6 +116,120 @@ def test_cli_research_prints_json(capsys, monkeypatch):
     out = json.loads(capsys.readouterr().out)
     assert out["query"] == "mcp servers"
     assert out["results"]["github"][0]["title"] == "repo"
+
+
+# ── Item 3: _meta passes skipped/unknown through honestly ──
+
+
+def test_meta_passes_through_skipped_and_unknown():
+    adapters = {"github": _fake([{"source": "github", "title": "B", "url": "http://x/2"}])}
+    out = run_research("q", adapters=adapters, skipped=["twitter"], unknown=["reddit"])
+    assert out["_meta"]["channels_skipped"] == ["twitter"]
+    assert out["_meta"]["channels_unknown"] == ["reddit"]
+
+
+def test_meta_skipped_unknown_default_empty():
+    adapters = {"github": _fake([{"source": "github", "title": "B", "url": "http://x/2"}])}
+    out = run_research("q", adapters=adapters)
+    assert out["_meta"]["channels_skipped"] == []
+    assert out["_meta"]["channels_unknown"] == []
+
+
+# ── Item 5: normalize_url uses an explicit scheme, not a "//" substring ──
+
+
+def test_normalize_url_ignores_double_slash_in_query():
+    # "//" appearing only in the query must NOT push the host into the path.
+    # www. is the tell: if the host lands in the path it never gets stripped,
+    # so the bare and schemed forms fail to collapse to the same key.
+    bare = normalize_url("www.example.com/p?x=a//b")
+    schemed = normalize_url("http://www.example.com/p?x=a//b")
+    assert bare == schemed == "example.com/p"
+
+
+def test_normalize_url_handles_scheme_relative():
+    assert normalize_url("//example.com/a/") == "example.com/a"
+    assert normalize_url("//example.com/a") == normalize_url("example.com/a")
+
+
+# ── Items 1+2+3: channel planning against active status ──
+
+
+def test_plan_default_uses_active_searchable_and_skips_inactive():
+    from autoresearch.adapters import plan_research_channels
+
+    run, skipped, unknown = plan_research_channels(
+        None,
+        active={"github", "reddit"},
+        searchable={"github", "hackernews"},
+        known={"github", "reddit", "hackernews"},
+    )
+    assert run == ["github"]
+    assert skipped == ["hackernews"]
+    assert unknown == []
+
+
+def test_plan_explicit_runs_requested_even_if_inactive():
+    from autoresearch.adapters import plan_research_channels
+
+    run, skipped, unknown = plan_research_channels(
+        ["hackernews"],
+        active={"github"},
+        searchable={"github", "hackernews"},
+        known={"github", "hackernews"},
+    )
+    assert run == ["hackernews"]
+    assert skipped == []
+    assert unknown == []
+
+
+def test_plan_explicit_flags_unknown_and_nonsearchable():
+    from autoresearch.adapters import plan_research_channels
+
+    run, skipped, unknown = plan_research_channels(
+        ["github", "reddit", "bogus"],
+        active={"github"},
+        searchable={"github", "hackernews"},
+        known={"github", "hackernews", "reddit"},
+    )
+    assert run == ["github"]
+    assert skipped == []
+    assert unknown == ["bogus", "reddit"]
+
+
+# ── Item 6: HN adapter routes through the channel's own search ──
+
+
+def test_search_hackernews_maps_channel_rows(monkeypatch):
+    import autoresearch.adapters as adapters_mod
+    from autoresearch.channels import hackernews as hn
+
+    def fake_search(self, query, limit=20):
+        return [{
+            "objectID": "42", "title": "T", "url": "",
+            "author": "a", "points": 1, "num_comments": 0, "created_at": "2020",
+        }]
+
+    monkeypatch.setattr(hn.HackerNewsChannel, "search_stories", fake_search)
+    rows = adapters_mod.search_hackernews("q", 5)
+    assert rows[0]["source"] == "hackernews"
+    assert rows[0]["title"] == "T"
+    # Empty url falls back to the HN item permalink.
+    assert rows[0]["url"] == "https://news.ycombinator.com/item?id=42"
+    assert rows[0]["date"] == "2020"
+
+
+# ── Item 4: CLI rejects non-positive --limit / --timeout ──
+
+
+@pytest.mark.parametrize("flag,value", [("-n", "0"), ("-n", "-1"), ("--timeout", "0")])
+def test_cli_research_rejects_nonpositive(flag, value, monkeypatch):
+    import autoresearch.cli as cli
+
+    monkeypatch.setattr("sys.argv", ["autoresearch", "research", "q", flag, value])
+    with pytest.raises(SystemExit) as exc:
+        cli.main()
+    assert exc.value.code != 0
 
 
 def test_total_wait_bounded_by_single_deadline_not_sum(monkeypatch):

@@ -44,14 +44,20 @@ mcporter call 'exa.get_code_context_exa(query: "code question", tokensNum: 3000)
 ## Multi-source research (fan-out)
 
 ```bash
-autoresearch research "your question" -n 5                  # fan out across all searchable channels
+autoresearch research "your question" -n 5                  # fan out across the ACTIVE searchable channels
 autoresearch research "your question" --channels hackernews,github,exa,twitter
 ```
 
 Fans the query across searchable channels concurrently and returns grouped,
 deduped JSON: `{query, results: {channel: [{source, title, url, snippet, date}]},
-_meta: {channels_queried, channels_skipped, errors}}`. A slow/failed channel is
-skipped (recorded in `_meta.errors`) and never blocks the others.
+_meta: {channels_queried, channels_skipped, channels_unknown, errors}}`.
+
+- **Default** (no `--channels`): queries only the channels `doctor` reports active;
+  searchable-but-inactive channels are listed in `_meta.channels_skipped` (not errored).
+- **`--channels`**: runs exactly the names you give (active or not). Names that aren't
+  searchable channels — a real but non-searchable channel like `reddit`, or a typo —
+  are reported in `_meta.channels_unknown`.
+- A slow/failed channel is recorded in `_meta.errors` and never blocks the others.
 
 > Glue-only: `research` **gathers and dedupes** — it does NOT synthesize. You (the
 > agent) read the cited JSON and write the answer. No LLM, no API key. Use this when

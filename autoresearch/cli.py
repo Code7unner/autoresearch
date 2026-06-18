@@ -36,6 +36,28 @@ def _ensure_utf8_console():
         pass
 
 
+def _positive_int(value):
+    """argparse type: a strictly-positive int (rejects 0 and negatives)."""
+    try:
+        ivalue = int(value)
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"invalid int value: {value!r}")
+    if ivalue < 1:
+        raise argparse.ArgumentTypeError(f"must be a positive integer, got {ivalue}")
+    return ivalue
+
+
+def _positive_float(value):
+    """argparse type: a strictly-positive float (rejects 0 and negatives)."""
+    try:
+        fvalue = float(value)
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"invalid float value: {value!r}")
+    if fvalue <= 0:
+        raise argparse.ArgumentTypeError(f"must be greater than 0, got {fvalue}")
+    return fvalue
+
+
 def _configure_logging(verbose: bool = False):
     """Suppress loguru output unless --verbose is set."""
     from loguru import logger
@@ -113,10 +135,10 @@ def main():
     p_research.add_argument("question", help="The research question / query")
     p_research.add_argument("--channels", default="",
                             help="Comma-separated channels to query (default: all searchable)")
-    p_research.add_argument("-n", "--limit", type=int, default=5,
-                            help="Max results per channel (default: 5)")
-    p_research.add_argument("--timeout", type=float, default=20.0,
-                            help="Per-channel timeout in seconds (default: 20)")
+    p_research.add_argument("-n", "--limit", type=_positive_int, default=5,
+                            help="Max results per channel, positive int (default: 5)")
+    p_research.add_argument("--timeout", type=_positive_float, default=20.0,
+                            help="Per-channel timeout in seconds, > 0 (default: 20)")
 
     # ── check-update ──
     sub.add_parser("check-update", help="Check for new versions and changes")
@@ -469,22 +491,27 @@ def _cmd_research(args):
     """
     import json as _json
 
-    from autoresearch.adapters import live_adapters
+    from autoresearch.adapters import resolve_research
     from autoresearch.research import run_research
 
     channels = [c.strip() for c in args.channels.split(",") if c.strip()] or None
-    adapters = live_adapters(channels)
-    if not adapters:
+    # resolve_research probes channel health: default run = active searchable channels;
+    # inactive ones become `skipped`, unrecognized/non-searchable names become `unknown`.
+    adapters, skipped, unknown = resolve_research(channels)
+
+    if not adapters and not unknown:
         print(_json.dumps({
             "query": args.question,
             "results": {},
-            "_meta": {"error": "no searchable channels available",
+            "_meta": {"error": "no active searchable channels",
+                      "channels_skipped": skipped,
                       "hint": "run `autoresearch doctor` to check channel status"},
         }, ensure_ascii=False, indent=2))
         return
 
-    out = run_research(args.question, adapters=adapters,
-                       channels=channels, limit=args.limit, timeout=args.timeout)
+    out = run_research(args.question, adapters=adapters, channels=list(adapters),
+                       limit=args.limit, timeout=args.timeout,
+                       skipped=skipped, unknown=unknown)
     print(_json.dumps(out, ensure_ascii=False, indent=2))
 
 

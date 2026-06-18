@@ -55,7 +55,7 @@ Status: **locked** (brainstormed 2026-06). Implementation pending.
   {
     "query": "...",
     "results": { "hackernews": [ {"source":"hackernews","title":"...","url":"...","snippet":"...","date":"..."} ] },
-    "_meta": { "channels_queried": [...], "channels_skipped": [...], "errors": {"reddit":"timeout"} }
+    "_meta": { "channels_queried": [...], "channels_skipped": [...], "channels_unknown": [...], "errors": {"reddit":"timeout"} }
   }
   ```
 - **Testing:** TDD. Unit tests for each adapter's normalization (against recorded
