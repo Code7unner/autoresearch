@@ -1,0 +1,37 @@
+[
+  {
+    "source": "hackernews",
+    "title": "Show HN: Revibing nanochat's inference model in C++ with ggml",
+    "url": "https://github.com/k-ye/nanochagg.ml",
+    "snippet": "Recently I wanted to see if I could vibe some serious C++ code.<p>The result is a C++ re-implementation of Andrej Karpathy&#x27;s nanochat&#x27;s inferencing part (<a href=\"https:&#x2F;&#x2F;github.com&#x2F;karpathy&#x2F;nanochat\" rel=\"nofollow\">https:&#x2F;&#x2F;github.com&#x2F;",
+    "date": "2026-01-10T14:46:46Z"
+  },
+  {
+    "source": "hackernews",
+    "title": "NanoChat – The best ChatGPT that $100 can buy",
+    "url": "https://github.com/karpathy/nanochat",
+    "snippet": "<a href=\"https:&#x2F;&#x2F;x.com&#x2F;karpathy&#x2F;status&#x2F;1977755427569111362\" rel=\"nofollow\">https:&#x2F;&#x2F;x.com&#x2F;karpathy&#x2F;status&#x2F;1977755427569111362</a>",
+    "date": "2025-10-13T15:22:47Z"
+  },
+  {
+    "source": "hackernews",
+    "title": "Nanochat Miniseries v1",
+    "url": "https://github.com/karpathy/nanochat/discussions/420",
+    "snippet": "",
+    "date": "2026-01-07T23:07:54Z"
+  },
+  {
+    "source": "hackernews",
+    "title": "Beating GPT-2 for less than $100 – Andrej Karpathy",
+    "url": "https://github.com/karpathy/nanochat/discussions/481",
+    "snippet": "",
+    "date": "2026-02-17T01:15:18Z"
+  },
+  {
+    "source": "hackernews",
+    "title": "Nanochat d34 model (~$2,500)",
+    "url": "https://github.com/karpathy/nanochat/discussions/314",
+    "snippet": "",
+    "date": "2025-11-20T19:32:30Z"
+  }
+]

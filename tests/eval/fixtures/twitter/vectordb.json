@@ -1,0 +1,37 @@
+[
+  {
+    "source": "twitter",
+    "title": "@CoinSh0t: This kid linked Claude and Obsidian in one app and made $250",
+    "url": "https://x.com/CoinSh0t/status/2066965035893551208",
+    "snippet": "This kid linked Claude and Obsidian in one app and made $250,000.  Now his AI has 10,000,000 tokens of context from his vault.  The app a...",
+    "date": "Jun 16 19:24"
+  },
+  {
+    "source": "twitter",
+    "title": "@0xCodez: https://t.co/eJB3TgyJwV",
+    "url": "https://x.com/0xCodez/status/2064374643729773029",
+    "snippet": "https://t.co/eJB3TgyJwV",
+    "date": "Jun 09 15:50"
+  },
+  {
+    "source": "twitter",
+    "title": "@0xlelouch_: Top 10 database resources I still recommend to working devs:",
+    "url": "https://x.com/0xlelouch_/status/2066696022189813925",
+    "snippet": "Top 10 database resources I still recommend to working devs:  1) Designing Data-Intensive Applications (Kleppmann). Real tradeoffs: logs ...",
+    "date": "Jun 16 01:35"
+  },
+  {
+    "source": "twitter",
+    "title": "@Alacritic_Super: 🐘 PostgresML: What If Your Database Was Also Your AI Platfor",
+    "url": "https://x.com/Alacritic_Super/status/2066915161991188698",
+    "snippet": "🐘 PostgresML: What If Your Database Was Also Your AI Platform?  Most AI architectures look like this:  Database → ETL → Feature Store → M...",
+    "date": "Jun 16 16:05"
+  },
+  {
+    "source": "twitter",
+    "title": "@ioanamarin_: excited to see a team making graph and hybrid retrieval easi",
+    "url": "https://x.com/ioanamarin_/status/2066619760473686126",
+    "snippet": "excited to see a team making graph and hybrid retrieval easier and integrated with postgres (just like pgvector did for vectors).   exact...",
+    "date": "Jun 15 20:32"
+  }
+]

@@ -1,0 +1,37 @@
+[
+  {
+    "source": "twitter",
+    "title": "@sairahul1: Andrej Karpathy: \"90% of Claude's mistakes come from missing",
+    "url": "https://x.com/sairahul1/status/2067172099949760684",
+    "snippet": "Andrej Karpathy: \"90% of Claude's mistakes come from missing context, not a weak model.\"  41% mistake rate without a CLAUDE.md. 11% with ...",
+    "date": "Jun 17 09:06"
+  },
+  {
+    "source": "twitter",
+    "title": "@kunchenguid: there's a famous \"karpathy claude.md\" being shared around he",
+    "url": "https://x.com/kunchenguid/status/2066942837632139411",
+    "snippet": "there's a famous \"karpathy claude.md\" being shared around here https://t.co/c9v7DSFlyF with a whopping 177k stars  two things you should ...",
+    "date": "Jun 16 17:55"
+  },
+  {
+    "source": "twitter",
+    "title": "@rileywestreel: Andrej Karpathy (OpenAI founding member):  \"This isn't the y",
+    "url": "https://x.com/rileywestreel/status/2066890212345581758",
+    "snippet": "Andrej Karpathy (OpenAI founding member):  \"This isn't the year of agents - it's the decade of agents. Stop chasing full autonomy: the AI...",
+    "date": "Jun 16 14:26"
+  },
+  {
+    "source": "twitter",
+    "title": "@karpathy: This is a super exciting release - Claude Fable 5 is the sam",
+    "url": "https://x.com/karpathy/status/2064409694761054332",
+    "snippet": "This is a super exciting release - Claude Fable 5 is the same underlying model as Mythos but with added safeguards. The benchmarks are gr...",
+    "date": "Jun 09 18:10"
+  },
+  {
+    "source": "twitter",
+    "title": "@4rblaber: Andrej Karpathy breaks down the exact anatomy of chatgpt and",
+    "url": "https://x.com/4rblaber/status/2066908813303706051",
+    "snippet": "Andrej Karpathy breaks down the exact anatomy of chatgpt and how llms actually work:  \"knowledge in the parameters of the neural network ...",
+    "date": "Jun 16 15:40"
+  }
+]

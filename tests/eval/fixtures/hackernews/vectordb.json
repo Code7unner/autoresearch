@@ -1,0 +1,37 @@
+[
+  {
+    "source": "hackernews",
+    "title": "Operationalizing AI with Postgres: Vector Databases and More",
+    "url": "https://www.enterprisedb.com/blog/operationalizing-ai-postgres",
+    "snippet": "",
+    "date": "2024-09-20T16:03:39Z"
+  },
+  {
+    "source": "hackernews",
+    "title": "Postgres vector database extensions - A Benchmark",
+    "url": "https://seanpedersen.github.io/posts/vector-databases",
+    "snippet": "",
+    "date": "2025-10-10T20:27:52Z"
+  },
+  {
+    "source": "hackernews",
+    "title": "Postgres vs. Qdrant Vector Database Comparison",
+    "url": "https://www.timescale.com/blog/pgvector-vs-qdrant",
+    "snippet": "",
+    "date": "2025-04-29T13:51:21Z"
+  },
+  {
+    "source": "hackernews",
+    "title": "Operationalizing Vector Databases on Postgres",
+    "url": "https://tembo.io/blog/operationalizing-vectordbs-on-postgres",
+    "snippet": "",
+    "date": "2024-04-21T05:33:04Z"
+  },
+  {
+    "source": "hackernews",
+    "title": "Operationalizing Vector Databases on Postgres",
+    "url": "https://tembo.io/blog/operationalizing-vectordbs-on-postgres",
+    "snippet": "",
+    "date": "2024-04-26T07:21:48Z"
+  }
+]

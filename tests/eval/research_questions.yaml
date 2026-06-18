@@ -1,0 +1,28 @@
+# Fixed benchmark for the research-command build loop (deterministic, offline).
+# coverage_score = mean over questions of (matched expected_signals / total).
+# Signals are lowercase substrings checked against title+snippet+url of any result.
+#
+# Signals are domain-true terms a good multi-source search SHOULD surface for the
+# query (derived from real recorded coverage, not synthetic guesses). They test
+# whether the fan-out finds the canonical sources, not arbitrary strings.
+- id: mcp
+  query: "model context protocol"
+  expected_signals: ["modelcontextprotocol", "anthropic", "spec"]
+- id: rust-async
+  query: "rust async runtime"
+  expected_signals: ["tokio", "runtime", "io_uring"]
+- id: llm-eval
+  query: "llm evaluation framework"
+  expected_signals: ["eval", "deepeval", "harness"]
+- id: vectordb
+  query: "postgres vector database"
+  expected_signals: ["pgvector", "postgres", "qdrant"]
+# Niche / opinion questions — designed to need breadth: signals span sources that a
+# single channel (e.g. only GitHub, or only HN) would not all surface. These give the
+# metric headroom so the loop can show the value of adding channels.
+- id: agent-opinions
+  query: "are AI coding agents overhyped"
+  expected_signals: ["agent", "claude", "hype"]
+- id: nanochat
+  query: "karpathy nanochat"
+  expected_signals: ["nanochat", "karpathy", "llm"]

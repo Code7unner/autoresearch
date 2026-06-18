@@ -1,0 +1,37 @@
+[
+  {
+    "source": "github",
+    "title": "monoio-rs/monoio",
+    "url": "https://github.com/monoio-rs/monoio",
+    "snippet": "Rust async runtime based on io-uring.",
+    "date": "2026-06-16T13:48:57Z"
+  },
+  {
+    "source": "github",
+    "title": "PyO3/pyo3-async-runtimes",
+    "url": "https://github.com/PyO3/pyo3-async-runtimes",
+    "snippet": "PyO3-based bridges between Python and Rust async runtimes",
+    "date": "2026-06-14T19:52:40Z"
+  },
+  {
+    "source": "github",
+    "title": "liten-rs/liten",
+    "url": "https://github.com/liten-rs/liten",
+    "snippet": "An alternative rust async runtime.",
+    "date": "2026-03-25T09:39:53Z"
+  },
+  {
+    "source": "github",
+    "title": "from-the-basement/executor",
+    "url": "https://github.com/from-the-basement/executor",
+    "snippet": "A rust async runtime that supports various of scheduling strategies.",
+    "date": "2024-10-31T09:28:09Z"
+  },
+  {
+    "source": "github",
+    "title": "lffg/fio",
+    "url": "https://github.com/lffg/fio",
+    "snippet": "An io_uring-backed Rust async runtime.",
+    "date": "2025-08-17T22:24:10Z"
+  }
+]

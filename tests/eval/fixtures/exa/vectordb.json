@@ -1,0 +1,37 @@
+[
+  {
+    "source": "exa",
+    "title": "pgvector/pgvector: Open-source vector similarity search for Postgres",
+    "url": "https://github.com/pgvector/pgvector",
+    "snippet": "",
+    "date": "2021-04-20T21:13:52.000Z"
+  },
+  {
+    "source": "exa",
+    "title": "Enable and use pgvector in Azure Database for PostgreSQL",
+    "url": "https://learn.microsoft.com/en-us/azure/postgresql/extensions/how-to-use-pgvector",
+    "snippet": "",
+    "date": "2025-12-22T00:00:00.000Z"
+  },
+  {
+    "source": "exa",
+    "title": "Supabase Vector",
+    "url": "https://supabase.com/vector",
+    "snippet": "",
+    "date": "N/A"
+  },
+  {
+    "source": "exa",
+    "title": "The Postgres Vector database and AI Toolkit - Supabase",
+    "url": "https://supabase.com/modules/vector",
+    "snippet": "",
+    "date": "N/A"
+  },
+  {
+    "source": "exa",
+    "title": "vector: Open-source vector similarity search for Postgres / PostgreSQL Extension Network",
+    "url": "https://pgxn.org/dist/vector",
+    "snippet": "",
+    "date": "N/A"
+  }
+]

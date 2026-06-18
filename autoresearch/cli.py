@@ -107,6 +107,17 @@ def main():
     p_format = sub.add_parser("format", help="Clean and format platform API output")
     p_format.add_argument("platform", choices=["xhs", "hn"], help="Platform to format (xhs, hn)")
 
+    # ── research ──
+    p_research = sub.add_parser(
+        "research", help="Fan a query across platforms and return grouped cited JSON")
+    p_research.add_argument("question", help="The research question / query")
+    p_research.add_argument("--channels", default="",
+                            help="Comma-separated channels to query (default: all searchable)")
+    p_research.add_argument("-n", "--limit", type=int, default=5,
+                            help="Max results per channel (default: 5)")
+    p_research.add_argument("--timeout", type=float, default=20.0,
+                            help="Per-channel timeout in seconds (default: 20)")
+
     # ── check-update ──
     sub.add_parser("check-update", help="Check for new versions and changes")
 
@@ -147,6 +158,8 @@ def main():
         _cmd_skill(args)
     elif args.command == "format":
         _cmd_format(args)
+    elif args.command == "research":
+        _cmd_research(args)
 
 
 # ── Command handlers ────────────────────────────────
@@ -446,6 +459,33 @@ def _cmd_skill(args):
         _install_skill()
     elif args.uninstall:
         _uninstall_skill()
+
+
+def _cmd_research(args):
+    """Fan a query across searchable channels and print grouped cited JSON.
+
+    Glue-only: gathers and dedupes results; the calling agent synthesizes the
+    prose answer. No LLM, no API key.
+    """
+    import json as _json
+
+    from autoresearch.adapters import live_adapters
+    from autoresearch.research import run_research
+
+    channels = [c.strip() for c in args.channels.split(",") if c.strip()] or None
+    adapters = live_adapters(channels)
+    if not adapters:
+        print(_json.dumps({
+            "query": args.question,
+            "results": {},
+            "_meta": {"error": "no searchable channels available",
+                      "hint": "run `autoresearch doctor` to check channel status"},
+        }, ensure_ascii=False, indent=2))
+        return
+
+    out = run_research(args.question, adapters=adapters,
+                       channels=channels, limit=args.limit, timeout=args.timeout)
+    print(_json.dumps(out, ensure_ascii=False, indent=2))
 
 
 def _cmd_format(args):

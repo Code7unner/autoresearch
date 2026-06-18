@@ -1,0 +1,37 @@
+[
+  {
+    "source": "hackernews",
+    "title": "Show HN: Opik, an open source LLM evaluation framework",
+    "url": "https://github.com/comet-ml/opik",
+    "snippet": "Hey HN! I&#x27;m Caleb, one of the contributors to Opik, a new open source framework for LLM evaluations.<p>Over the last few months, my colleagues and I have been working on a project to solve what we see as the most painful parts of writing evals for an LLM application. For thi",
+    "date": "2024-09-17T13:01:44Z"
+  },
+  {
+    "source": "hackernews",
+    "title": "Nexa-gauge – LLM evaluation framework with per-node scoring controls",
+    "url": "https://harnexa.dev/nexa-gauge/docs/introduction",
+    "snippet": "",
+    "date": "2026-05-30T19:50:37Z"
+  },
+  {
+    "source": "hackernews",
+    "title": "Show HN: Dokimos – LLM Evaluation Framework for Java",
+    "url": "https://github.com/dokimos-dev/dokimos",
+    "snippet": "I tried building LLM applications in Java and wanted the evaluation experience I know from the Python ecosystem: datasets, experiments, built in metrics, tracking results over time.<p>Dokimos brings that to Java. It&#x27;s a framework for evaluating LLM outputs with:<p>- Built in",
+    "date": "2026-01-04T08:30:39Z"
+  },
+  {
+    "source": "hackernews",
+    "title": "Viteval – an LLM evaluation framework powered by Vitest",
+    "url": "https://viteval.dev/",
+    "snippet": "",
+    "date": "2025-08-19T06:45:34Z"
+  },
+  {
+    "source": "hackernews",
+    "title": "How to build your own LLM evaluation framework",
+    "url": "https://www.confident-ai.com/blog/how-to-build-an-llm-evaluation-framework-from-scratch",
+    "snippet": "",
+    "date": "2024-04-15T18:25:30Z"
+  }
+]

@@ -1,0 +1,37 @@
+[
+  {
+    "source": "hackernews",
+    "title": "The State of Async Rust: Runtimes",
+    "url": "https://corrode.dev/blog/async/",
+    "snippet": "",
+    "date": "2023-09-25T05:20:13Z"
+  },
+  {
+    "source": "hackernews",
+    "title": "Monoio – A thread-per-core Rust async runtime with io_uring",
+    "url": "https://github.com/bytedance/monoio",
+    "snippet": "",
+    "date": "2021-12-09T03:08:59Z"
+  },
+  {
+    "source": "hackernews",
+    "title": "The State of Async Rust: Runtimes",
+    "url": "https://corrode.dev/blog/async/",
+    "snippet": "",
+    "date": "2023-09-22T17:16:03Z"
+  },
+  {
+    "source": "hackernews",
+    "title": "Tokio-Uring Design Proposal - A new async Rust runtime",
+    "url": "https://github.com/tokio-rs/tokio-uring/blob/design-doc/DESIGN.md",
+    "snippet": "",
+    "date": "2021-04-08T17:41:23Z"
+  },
+  {
+    "source": "hackernews",
+    "title": "Trale v0.2.0 – rust async runtime using io_uring",
+    "url": "https://github.com/hexagonal-sun/trale",
+    "snippet": "",
+    "date": "2025-02-09T21:48:02Z"
+  }
+]

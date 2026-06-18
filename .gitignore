@@ -9,3 +9,4 @@ build/
 .autoresearch/
 *.log
 ./.claude/settings.local.json
+results.tsv

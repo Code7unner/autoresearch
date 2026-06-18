@@ -1,0 +1,37 @@
+[
+  {
+    "source": "github",
+    "title": "confident-ai/deepeval",
+    "url": "https://github.com/confident-ai/deepeval",
+    "snippet": "The LLM Evaluation Framework",
+    "date": "2026-06-17T11:05:56Z"
+  },
+  {
+    "source": "github",
+    "title": "stellarlinkco/ai-eval",
+    "url": "https://github.com/stellarlinkco/ai-eval",
+    "snippet": "The LLM Evaluation Framework",
+    "date": "2026-03-26T08:02:17Z"
+  },
+  {
+    "source": "github",
+    "title": "kieranklaassen/leva",
+    "url": "https://github.com/kieranklaassen/leva",
+    "snippet": "LLM Evaluation Framework for Rails apps to be used with production data.",
+    "date": "2026-06-15T15:53:34Z"
+  },
+  {
+    "source": "github",
+    "title": "AnSwati/llm_eval_toolkit",
+    "url": "https://github.com/AnSwati/llm_eval_toolkit",
+    "snippet": "LLM Evaluation Framework",
+    "date": "2026-02-02T16:58:50Z"
+  },
+  {
+    "source": "github",
+    "title": "ai-twinkle/Eval",
+    "url": "https://github.com/ai-twinkle/Eval",
+    "snippet": "High-performance LLM evaluation framework with parallel API calls — up to 17× faster than sequential tools. Supports box, math, and logit-based evaluation.",
+    "date": "2026-05-25T09:31:40Z"
+  }
+]

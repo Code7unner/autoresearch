@@ -1,0 +1,37 @@
+[
+  {
+    "source": "twitter",
+    "title": "@sheerluck_io: Published another article on learning Rust series.  In this",
+    "url": "https://x.com/sheerluck_io/status/2067082944897057092",
+    "snippet": "Published another article on learning Rust series.  In this article, you'll learn about Async Rust, Futures, Tokio by building a HTTP/1.1...",
+    "date": "Jun 17 03:12"
+  },
+  {
+    "source": "twitter",
+    "title": "@seelffff: my friend plays online poker. NL500. $50K/month rakeback  da",
+    "url": "https://x.com/seelffff/status/2039305058475446637",
+    "snippet": "my friend plays online poker. NL500. $50K/month rakeback  day 1: fed all 6 strategies to Claude. asked \"rewrite #3 and #5 in Rust\"  Claud...",
+    "date": "Apr 01 11:33"
+  },
+  {
+    "source": "twitter",
+    "title": "@avrldotdev: Step-0: Learn Rust Step-1:  Understand borrowing, ownership",
+    "url": "https://x.com/avrldotdev/status/2067126573145465000",
+    "snippet": "Step-0: Learn Rust Step-1:  Understand borrowing, ownership & lifetimes Step-2: Learn memory safety & type system Step-3: Build a small C...",
+    "date": "Jun 17 06:05"
+  },
+  {
+    "source": "twitter",
+    "title": "@ayushagarwal027: Great hands-on intro to async Rust by @heyfebin 🦀  It answer",
+    "url": "https://x.com/ayushagarwal027/status/2064256588328947884",
+    "snippet": "Great hands-on intro to async Rust by @heyfebin 🦀  It answers the question most tutorials skip: who actually runs async code in Rust?  Th...",
+    "date": "Jun 09 08:01"
+  },
+  {
+    "source": "twitter",
+    "title": "@aiwarts: https://t.co/bLLuXllTn9",
+    "url": "https://x.com/aiwarts/status/2066146382327484484",
+    "snippet": "https://t.co/bLLuXllTn9",
+    "date": "Jun 14 13:10"
+  }
+]
