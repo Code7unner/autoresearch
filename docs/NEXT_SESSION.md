@@ -9,7 +9,7 @@ Xiaoyuzhou, LinkedIn, V2EX, Xueqiu, RSS, Exa web search, any web page). It's a
 reimplements or modifies them. Read CLAUDE.md first; it is authoritative.
 
 ## Current state
-- Version 1.4.0. ~109 tests pass (`pytest tests/ -v`).
+- Version 1.0.1. ~138 tests pass (`pytest tests/ -v`).
 - The project was rebranded from "Agent Reach" to "autoresearch" (CLI command,
   package `autoresearch/`, class `AutoResearch`). Rebrand is merged to main.
 - Active channels depend on the machine — run `autoresearch doctor` to see status.

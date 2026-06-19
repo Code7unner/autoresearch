@@ -12,6 +12,7 @@ Adapters are injectable so this module is testable offline; the live registry li
 in ``adapters.py`` / is resolved from the active channels.
 """
 
+import re
 import threading
 import time
 from typing import Callable, Dict, List, Optional
@@ -20,6 +21,9 @@ from urllib.parse import urlsplit
 SearchFn = Callable[[str, int], List[dict]]
 
 _RESULT_KEYS = ("source", "title", "url", "snippet", "date")
+
+# A real URL scheme: a letter followed by letters/digits/+-. then "://".
+_SCHEME_RE = re.compile(r"^[a-zA-Z][a-zA-Z0-9+.\-]*://")
 
 
 def normalize_url(url: str) -> str:
@@ -31,7 +35,11 @@ def normalize_url(url: str) -> str:
     """
     if not url:
         return ""
-    parts = urlsplit(url if "//" in url else "//" + url)
+    # Only prepend "//" when there is genuinely no authority component. Keying off a
+    # bare "//" substring misfires when "//" appears solely in the query/fragment
+    # (e.g. ``example.com/p?x=a//b``), which would strand the host inside the path.
+    has_authority = bool(_SCHEME_RE.match(url)) or url.startswith("//")
+    parts = urlsplit(url if has_authority else "//" + url)
     host = (parts.netloc or "").lower()
     if host.startswith("www."):
         host = host[4:]
@@ -50,12 +58,20 @@ def run_research(
     channels: Optional[List[str]] = None,
     limit: int = 5,
     timeout: float = 20.0,
+    skipped: Optional[List[str]] = None,
+    unknown: Optional[List[str]] = None,
 ) -> dict:
     """Run ``question`` across the selected adapters and return grouped results.
 
     Returns ``{"query", "results": {channel: [rows]}, "_meta": {...}}``. A channel
     that errors or exceeds ``timeout`` is omitted from ``results`` and recorded under
     ``_meta.errors``; it never blocks the others.
+
+    ``skipped`` (channels intentionally not queried — e.g. inactive) and ``unknown``
+    (requested names that aren't searchable channels) are reported verbatim in
+    ``_meta``. They are decided by the caller, which knows channel/active status; this
+    executor only runs ``adapters`` and never invents either list (the old self-derived
+    ``channels_skipped`` was structurally always empty).
     """
     selected = sorted(channels) if channels is not None else sorted(adapters)
     selected = [c for c in selected if c in adapters]
@@ -115,7 +131,8 @@ def run_research(
         "results": results,
         "_meta": {
             "channels_queried": [c for c in selected if c not in errors],
-            "channels_skipped": [c for c in sorted(adapters) if c not in selected],
+            "channels_skipped": list(skipped or []),
+            "channels_unknown": list(unknown or []),
             "errors": errors,
         },
     }
