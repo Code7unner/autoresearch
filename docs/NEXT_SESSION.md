@@ -9,12 +9,25 @@ Xiaoyuzhou, LinkedIn, V2EX, Xueqiu, RSS, Exa web search, any web page). It's a
 reimplements or modifies them. Read CLAUDE.md first; it is authoritative.
 
 ## Current state
-- Version 1.0.1. ~138 tests pass (`pytest tests/ -v`).
+- Version 1.0.1. ~157 tests pass (`pytest tests/ -v`).
 - The project was rebranded from "Agent Reach" to "autoresearch" (CLI command,
   package `autoresearch/`, class `AutoResearch`). Rebrand is merged to main.
 - Active channels depend on the machine — run `autoresearch doctor` to see status.
   On the dev machine these were active: GitHub, Twitter/X, LinkedIn, HN, V2EX, RSS,
   Exa, Web (Jina), WeChat.
+
+## Done (do not redo)
+- **#1 `research` command** — multi-source fan-out + dedupe, grouped cited JSON. (PR #9)
+  - All 6 code-review follow-ups also landed (PR #10): active-channel resolution,
+    unknown-channel reporting, `_meta.channels_skipped`/`channels_unknown`,
+    `--limit`/`--timeout` validation, `normalize_url` scheme detection, HN adapter
+    routed through `HackerNewsChannel.search_stories`.
+- **#6 Secrets via stdin/file** — `configure --stdin` / `--file PATH`, argv warning. (PR #11)
+- **#7 Release + CI** — already in place: GitHub Release `v1.0.1` (check-update no longer
+  404s) and `.github/workflows/pytest.yml` runs pytest on PRs.
+- **#3 `doctor --fix`** — auto-applies yt-dlp JS-runtime config, Exa/mcporter entry, and
+  config.yaml `chmod 0600`; manual hints for non-auto-fixable cases. New
+  `Channel.fix(config) -> (changed, message)` mirrors `check()`. (PR #12)
 
 ## Hard rules (from CLAUDE.md — do not violate)
 - NEVER modify upstream open-source projects. autoresearch only routes/calls.
@@ -27,69 +40,23 @@ reimplements or modifies them. Read CLAUDE.md first; it is authoritative.
   tests/test_cli.py — there's a guard test in tests/test_doc_consistency.py.
 - There are doc<->code consistency tests (tests/test_doc_consistency.py); keep them green.
 
-## Prioritized hypotheses to evaluate (brainstorm first, don't just build)
-1. **`autoresearch research "<question>"` — multi-source fan-out + synthesis.** The
-   product's name and unique edge is breadth. No competitor (Firecrawl=web, Exa=search)
-   does cross-platform research. Fan out a query across active channels, dedupe, and
-   synthesize a cited summary. Likely the highest-leverage feature.
-   Refs: nickscamara/open-deep-research; "Building a Deep Research Agent Using
-   MCP-Agent" (HN, 91 pts).
+## Remaining hypotheses (brainstorm first, don't just build)
 2. **First-class MCP server.** `autoresearch/integrations/mcp_server.py` exists but is
    thin. Expose 2-3 well-scoped tools (search/read/research) following MCP best
    practices: bundle workflows, sensible defaults, concrete examples, minimal tool
    count. Refs: AWS "MCP strategies" guide; Jfokus "MCP Servers Beyond 101".
-3. **`autoresearch doctor --fix`** — auto-fix the fixable (yt-dlp js-runtime config,
-   mcporter entries) instead of printing manual steps.
+   (Largest remaining item — design scope with the brainstorming skill first.)
 4. **Session/cookie health checks in doctor** — Twitter/LinkedIn/XHS sessions expire
    silently; doctor should detect "expired/expiring" via a cheap probe, not just
-   "installed".
+   "installed". Pairs naturally with the `Channel.check()`/`fix()` surface from #3.
 5. **Fetch-layer robustness** — unified retry/backoff + anti-bot/proxy fallbacks shared
    across channels. Refs: DEV "Reliable Web-Connected AI Agents Start at the Fetch
    Layer"; "Rate Limits & Anti-Bots in Agentic Scraping".
-6. **Security: secrets via stdin/file, not argv.** `configure twitter-cookies "..."`
-   leaks into shell history / `ps`. Read from stdin or a file.
-7. **Release + CI.** Cut a GitHub Release for the current version (so `check-update`
-   stops 404ing on releases/latest) and add a GitHub Actions workflow running pytest on PRs.
 8. **Bilingual docs** — docs/install.md is half-Chinese; split or localize for English
-   users.
+   users. (Smallest remaining item — good quick win.)
 
 ## Suggested starting point
-Start with hypothesis #1 (the `research` command) using the brainstorming skill to
-design scope/output format before writing code, OR if you want a quick win first, do
-#7 (release + CI) and #6 (secret handling). Confirm direction with the user.
-
-## Follow-ups from the `research` command code review (PR #9)
-
-The `research` command landed in PR #9. A high-effort code review surfaced these;
-the two blockers (process-hang on slow channel, silent CLI-failure reporting) were
-fixed in that PR. The rest are non-blocking follow-ups, roughly by value:
-
-1. **Integrate `research` fan-out with active-channel status.** `adapters.live_adapters`
-   returns *all searchable* adapters regardless of whether the upstream tool is
-   installed/configured, so a default run reports cryptic errors (e.g.
-   `_meta.errors["twitter"] = "FileNotFoundError"`) for inactive channels instead of
-   skipping them. The locked design says default = *active* channels — wire it to
-   `doctor.check_all` so inactive channels are skipped (and listed in
-   `channels_skipped`), not errored. `autoresearch/adapters.py`, `autoresearch/cli.py:_cmd_research`.
-2. **Report unknown / non-searchable channel names.** `--channels reddit,github` drops
-   `reddit` silently (not searchable) — it appears in neither `errors` nor
-   `channels_skipped`. Validate `--channels` against the registry and surface unknown
-   names. `autoresearch/cli.py:_cmd_research`.
-3. **`_meta.channels_skipped` is structurally always `[]`.** It's computed from the
-   already-narrowed `adapters` dict, not the full registry, so it can never report what
-   it promises. Either compute it from the full searchable set or drop the field.
-   `autoresearch/research.py` (`run_research`).
-4. **Validate `--limit` / `--timeout`.** `-n 0` → all channels silently empty; `-n -1`
-   → drops the last result per channel; `--timeout 0` → every channel `TimeoutError`.
-   Reject non-positive values at the CLI boundary. `autoresearch/cli.py`.
-5. **`normalize_url` "//" heuristic.** `url if "//" in url else "//" + url` misfires when
-   `//` appears only in the query/fragment (e.g. `example.com/p?x=a//b`), so the host
-   lands in the path and a duplicate isn't collapsed. Detect a scheme explicitly.
-   `autoresearch/research.py`.
-6. **De-duplicate HN search + `_get_json` (reuse / altitude).** `adapters.search_hackernews`
-   and `adapters._get_json` reimplement logic already in
-   `autoresearch/channels/hackernews.py` (which even uses `http://` vs the adapter's
-   `https://` — already drifting). More broadly, `adapters.py` is a parallel search
-   surface that bypasses the `BaseChannel.search()` contract CLAUDE.md mandates. Consider
-   routing `research` through channels' own `search()` so there's a single source of
-   truth. `autoresearch/adapters.py` vs `autoresearch/channels/`.
+Two natural next steps: **#4 session health checks** (medium, builds directly on the
+`Channel.check()`/`fix()` surface just added in #3) or **#2 MCP server** (largest, do a
+brainstorming pass on tool shape/scope first). **#8 bilingual docs** is the easy quick
+win. Confirm direction with the user.
