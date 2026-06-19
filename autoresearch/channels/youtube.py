@@ -44,3 +44,26 @@ class YouTubeChannel(Channel):
                     f"  {render_ytdlp_fix_command()}"
                 )
         return "ok", "Can extract video info and subtitles"
+
+    def fix(self, config=None):
+        """Enable Node.js as yt-dlp's JS runtime by writing the config line.
+
+        Only the "JS runtime not configured" case is auto-fixable here; installing
+        yt-dlp or a JS runtime is left to the user (reported as a manual hint)."""
+        if not shutil.which("yt-dlp"):
+            return False, "yt-dlp not installed — run: pip install yt-dlp"
+        if not (shutil.which("deno") or shutil.which("node")):
+            return False, "no JS runtime — install Node.js or deno, then re-run"
+        if shutil.which("deno"):
+            return False, ""  # deno works out of the box, nothing to configure
+        # Node.js present, no deno: ensure `--js-runtimes node` is in the config.
+        cfg = get_ytdlp_config_path()
+        existing = read_utf8_text(cfg) if cfg.exists() else ""
+        if "--js-runtimes" in existing:
+            return False, ""  # already configured
+        cfg.parent.mkdir(parents=True, exist_ok=True)
+        with open(cfg, "a", encoding="utf-8") as fh:
+            if existing and not existing.endswith("\n"):
+                fh.write("\n")
+            fh.write("--js-runtimes node\n")
+        return True, f"enabled Node.js JS runtime in {cfg}"

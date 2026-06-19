@@ -4,7 +4,7 @@
 Each channel knows how to check itself. Doctor just collects the results.
 """
 
-from typing import Dict
+from typing import Dict, List
 from autoresearch.config import Config
 from autoresearch.channels import get_all_channels
 
@@ -22,6 +22,51 @@ def check_all(config: Config) -> Dict[str, dict]:
             "backends": ch.backends,
         }
     return results
+
+
+def run_fixes(config: Config) -> List[dict]:
+    """Apply the auto-fixable setup steps for any channel that isn't ``ok``.
+
+    Each non-ok channel's ``fix(config)`` is invoked; ``ok`` channels are left
+    alone. Plus an environment-level fix: tighten over-permissive ``config.yaml``.
+    Returns a list of ``{channel, changed, message}`` outcomes, omitting silent
+    no-ops (``changed=False`` and empty message) so the report stays uncluttered.
+    """
+    outcomes: List[dict] = []
+    for ch in get_all_channels():
+        status, _ = ch.check(config)
+        if status == "ok":
+            continue
+        changed, message = ch.fix(config)
+        if changed or message:
+            outcomes.append({"channel": ch.name, "changed": changed, "message": message})
+
+    perm = _fix_config_permissions(config)
+    if perm:
+        outcomes.append(perm)
+    return outcomes
+
+
+def _fix_config_permissions(config: Config):
+    """chmod the config file to 0600 if it is group/other accessible (POSIX only)."""
+    import os
+    import stat
+    import sys
+
+    if sys.platform == "win32":
+        return None
+    path = getattr(config, "config_path", None) or Config.CONFIG_FILE
+    try:
+        if not path.exists():
+            return None
+        mode = path.stat().st_mode
+        if mode & (stat.S_IRGRP | stat.S_IROTH | stat.S_IWGRP | stat.S_IWOTH):
+            os.chmod(path, stat.S_IRUSR | stat.S_IWUSR)  # 0o600
+            return {"channel": "config", "changed": True,
+                    "message": f"tightened {path} permissions to 0600"}
+    except OSError:
+        return None
+    return None
 
 
 def format_report(results: Dict[str, dict]) -> str:

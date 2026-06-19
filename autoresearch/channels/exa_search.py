@@ -36,3 +36,32 @@ class ExaSearchChannel(Channel):
             )
         except Exception:
             return "off", "mcporter connection error"
+
+    def fix(self, config=None):
+        """Add the Exa MCP entry via mcporter (the one fixable case).
+
+        Installing mcporter itself needs npm and is left to the user."""
+        mcporter = shutil.which("mcporter")
+        if not mcporter:
+            return False, "mcporter not installed — run: npm install -g mcporter"
+        # Already configured? Then there's nothing to do.
+        try:
+            r = subprocess.run(
+                [mcporter, "config", "list"], capture_output=True,
+                encoding="utf-8", errors="replace", timeout=5,
+            )
+            if "exa" in (r.stdout or "").lower():
+                return False, ""
+        except Exception:
+            pass  # fall through and try to add it anyway
+        try:
+            r = subprocess.run(
+                [mcporter, "config", "add", "exa", "https://mcp.exa.ai/mcp"],
+                capture_output=True, encoding="utf-8", errors="replace", timeout=30,
+            )
+        except Exception as exc:
+            return False, f"mcporter config add failed: {exc}"
+        if r.returncode != 0:
+            detail = (r.stderr or r.stdout or "").strip()[:200]
+            return False, f"mcporter config add failed: {detail}" if detail else "mcporter config add failed"
+        return True, "configured Exa MCP (mcporter config add exa)"

@@ -11,6 +11,75 @@ from autoresearch.channels.v2ex import V2EXChannel
 from autoresearch.channels.xiaohongshu import XiaoHongShuChannel
 from autoresearch.channels.xueqiu import XueqiuChannel
 from autoresearch.channels.hackernews import HackerNewsChannel, format_hn_result
+from autoresearch.channels.youtube import YouTubeChannel
+from autoresearch.channels.exa_search import ExaSearchChannel
+
+
+def _which_map(present):
+    """Return a shutil.which stand-in that resolves only the named tools."""
+    return lambda tool: f"/usr/bin/{tool}" if tool in present else None
+
+
+class TestChannelFix:
+    """`fix()` auto-applies the fixable setup steps (doctor --fix)."""
+
+    def test_base_fix_is_noop(self):
+        # A channel with no override reports nothing to fix.
+        changed, msg = V2EXChannel().fix()
+        assert changed is False
+        assert msg == ""
+
+    def test_youtube_fix_writes_js_runtime(self, tmp_path, monkeypatch):
+        cfg = tmp_path / "yt-dlp" / "config"
+        monkeypatch.setattr("autoresearch.channels.youtube.shutil.which",
+                            _which_map({"yt-dlp", "node"}))  # node present, no deno
+        monkeypatch.setattr("autoresearch.channels.youtube.get_ytdlp_config_path",
+                            lambda: cfg)
+        changed, msg = YouTubeChannel().fix()
+        assert changed is True
+        assert "--js-runtimes node" in cfg.read_text(encoding="utf-8")
+        # Idempotent: a second run changes nothing.
+        changed2, _ = YouTubeChannel().fix()
+        assert changed2 is False
+
+    def test_youtube_fix_skips_when_deno_present(self, monkeypatch):
+        monkeypatch.setattr("autoresearch.channels.youtube.shutil.which",
+                            _which_map({"yt-dlp", "deno"}))
+        changed, msg = YouTubeChannel().fix()
+        assert changed is False  # deno works out of the box
+
+    def test_youtube_fix_not_fixable_without_ytdlp(self, monkeypatch):
+        monkeypatch.setattr("autoresearch.channels.youtube.shutil.which",
+                            _which_map(set()))
+        changed, msg = YouTubeChannel().fix()
+        assert changed is False
+        assert "yt-dlp" in msg  # actionable manual hint
+
+    def test_exa_fix_not_fixable_without_mcporter(self, monkeypatch):
+        monkeypatch.setattr("autoresearch.channels.exa_search.shutil.which",
+                            _which_map(set()))
+        changed, msg = ExaSearchChannel().fix()
+        assert changed is False
+        assert "mcporter" in msg
+
+    def test_exa_fix_adds_entry_when_missing(self, monkeypatch):
+        monkeypatch.setattr("autoresearch.channels.exa_search.shutil.which",
+                            _which_map({"mcporter"}))
+        calls = []
+
+        def fake_run(cmd, **kw):
+            calls.append(cmd)
+
+            class R:
+                returncode = 0
+                stdout = "" if "list" in cmd else "added exa"
+                stderr = ""
+            return R()
+
+        monkeypatch.setattr("autoresearch.channels.exa_search.subprocess.run", fake_run)
+        changed, msg = ExaSearchChannel().fix()
+        assert changed is True
+        assert any("add" in c and "exa" in c for c in calls)
 
 
 class TestChannelRegistry:

@@ -340,7 +340,7 @@ for e in feedparser.parse('FEED_URL').entries[:5]:
 
 ## Troubleshooting
 
-- **Channel not working?** Run `autoresearch doctor` — it shows status and fix instructions.
+- **Channel not working?** Run `autoresearch doctor` — it shows status and fix instructions. Add `--fix` (`autoresearch doctor --fix`) to auto-apply the fixable ones (yt-dlp JS runtime, Exa/mcporter entry, config-file permissions); anything needing a new install or your credentials is left as a manual hint.
 - **Twitter fetch failed?** Ensure `undici` is installed: `npm install -g undici`. Configure a proxy if needed: `autoresearch configure proxy URL`.
 
 ## Setting Up a Channel ("help me configure XXX")
