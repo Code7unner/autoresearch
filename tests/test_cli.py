@@ -113,6 +113,45 @@ class TestConfigureSecretInput:
         assert "--stdin" in capsys.readouterr().err
 
 
+class TestDoctorFix:
+    def test_doctor_fix_runs_fixes_and_reports(self, monkeypatch, capsys):
+        import autoresearch.doctor as doctor
+
+        monkeypatch.setattr(doctor, "check_all", lambda config: {})
+        monkeypatch.setattr(doctor, "format_report", lambda results: "REPORT")
+        called = {}
+
+        def fake_run_fixes(config):
+            called["yes"] = True
+            return [{"channel": "youtube", "changed": True, "message": "enabled JS runtime"},
+                    {"channel": "exa_search", "changed": False, "message": "mcporter not installed"}]
+
+        monkeypatch.setattr(doctor, "run_fixes", fake_run_fixes)
+        monkeypatch.setattr(cli, "_install_skill", lambda: None)
+
+        with patch("sys.argv", ["autoresearch", "doctor", "--fix"]):
+            main()
+
+        out = capsys.readouterr().out
+        assert called.get("yes") is True
+        assert "youtube" in out and "enabled JS runtime" in out
+        assert "exa_search" in out  # unchanged-but-actionable still surfaced
+
+    def test_doctor_without_fix_does_not_run_fixes(self, monkeypatch):
+        import autoresearch.doctor as doctor
+
+        monkeypatch.setattr(doctor, "check_all", lambda config: {})
+        monkeypatch.setattr(doctor, "format_report", lambda results: "REPORT")
+        monkeypatch.setattr(cli, "_install_skill", lambda: None)
+
+        def boom(config):
+            raise AssertionError("run_fixes must not be called without --fix")
+
+        monkeypatch.setattr(doctor, "run_fixes", boom)
+        with patch("sys.argv", ["autoresearch", "doctor"]):
+            main()
+
+
 class TestCheckUpdateRetry:
     def test_retry_timeout_classification(self):
         sleeps = []

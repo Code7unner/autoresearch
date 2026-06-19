@@ -34,3 +34,15 @@ class Channel(ABC):
         Returns (status, message) where status is 'ok'/'warn'/'off'/'error'.
         """
         return "ok", f"{', '.join(self.backends) if self.backends else 'built-in'}"
+
+    def fix(self, config=None) -> Tuple[bool, str]:
+        """
+        Attempt to auto-fix this channel's setup (driven by `doctor --fix`).
+
+        Returns ``(changed, message)``. ``changed`` is True when this call mutated
+        something (wrote a config, added an entry). A non-empty ``message`` with
+        ``changed=False`` is an actionable manual hint (e.g. "install X first").
+        ``("", False)`` means nothing to do / not auto-fixable. The default is a
+        no-op; channels with a known automatic fix override this.
+        """
+        return False, ""
