@@ -138,6 +138,15 @@ Some channels need credentials only the user can provide. Based on the doctor ou
 autoresearch configure twitter-cookies "PASTED_STRING"
 ```
 
+> **Keep secrets out of shell history.** Any `configure` key that takes a credential
+> (`twitter-cookies`, `github-token`, `groq-key`, `xhs-cookies`, `proxy`) can read the
+> value from stdin or a file instead of the command line — passing it as an argument
+> leaks it into your shell history and `ps`:
+> ```bash
+> pbpaste | autoresearch configure twitter-cookies --stdin   # from clipboard
+> autoresearch configure github-token --file ~/secrets/gh-token.txt
+> ```
+
 > **Proxy notes (for networks that require circumventing restrictions, e.g. mainland China):**
 >
 > twitter-cli and rdt-cli are Python-based; in networks that require a proxy, you can configure one via environment variables.

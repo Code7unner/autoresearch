@@ -43,6 +43,76 @@ class TestCLI:
         assert ct0 == "ct0abc"
 
 
+class TestConfigureSecretInput:
+    """`configure` should accept secrets via stdin/file, not just argv (no leak
+    into shell history / `ps`)."""
+
+    @staticmethod
+    def _ns(**kw):
+        import argparse
+        defaults = dict(key="github-token", value=[], stdin=False, file=None)
+        defaults.update(kw)
+        return argparse.Namespace(**defaults)
+
+    def test_resolve_value_from_stdin(self, monkeypatch):
+        import io
+        monkeypatch.setattr("sys.stdin", io.StringIO("ghp_fromstdin\n"))
+        assert cli._resolve_config_value(self._ns(stdin=True)) == "ghp_fromstdin"
+
+    def test_resolve_value_from_file(self, tmp_path):
+        p = tmp_path / "secret.txt"
+        p.write_text("ghp_fromfile\n", encoding="utf-8")
+        assert cli._resolve_config_value(self._ns(file=str(p))) == "ghp_fromfile"
+
+    def test_resolve_value_from_argv(self):
+        assert cli._resolve_config_value(self._ns(value=["ghp", "argv"])) == "ghp argv"
+
+    def test_resolve_value_rejects_multiple_sources(self, monkeypatch):
+        import io
+        monkeypatch.setattr("sys.stdin", io.StringIO("x"))
+        with pytest.raises(SystemExit) as exc:
+            cli._resolve_config_value(self._ns(stdin=True, value=["y"]))
+        assert exc.value.code != 0
+
+    def test_resolve_value_missing_file_errors(self, tmp_path):
+        with pytest.raises(SystemExit) as exc:
+            cli._resolve_config_value(self._ns(file=str(tmp_path / "nope.txt")))
+        assert exc.value.code != 0
+
+    def test_configure_github_token_via_stdin_stores_value(self, monkeypatch, capsys):
+        import io
+
+        class _FakeConfig:
+            def __init__(self):
+                self.data = {}
+
+            def set(self, k, v):
+                self.data[k] = v
+
+            def get(self, k, default=None):
+                return self.data.get(k, default)
+
+        fake = _FakeConfig()
+        monkeypatch.setattr("autoresearch.config.Config", lambda: fake)
+        monkeypatch.setattr("sys.stdin", io.StringIO("ghp_secret\n"))
+        with patch("sys.argv", ["autoresearch", "configure", "github-token", "--stdin"]):
+            main()
+        assert fake.data["github_token"] == "ghp_secret"
+
+    def test_configure_warns_when_secret_passed_via_argv(self, monkeypatch, capsys):
+        class _FakeConfig:
+            def set(self, k, v):
+                pass
+
+            def get(self, k, default=None):
+                return default
+
+        monkeypatch.setattr("autoresearch.config.Config", lambda: _FakeConfig())
+        with patch("sys.argv", ["autoresearch", "configure", "github-token", "ghp_x"]):
+            main()
+        assert "--stdin" in capsys.readouterr().err
+
+
 class TestCheckUpdateRetry:
     def test_retry_timeout_classification(self):
         sleeps = []

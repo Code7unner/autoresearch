@@ -6,6 +6,7 @@ Usage:
     autoresearch install --env=auto
     autoresearch doctor
     autoresearch configure twitter-cookies "auth_token=xxx; ct0=yyy"
+    autoresearch configure github-token --stdin   # read the secret off stdin, not argv
     autoresearch setup
 """
 
@@ -103,6 +104,10 @@ def main():
                                  "xhs-cookies"],
                         help="What to configure (omit if using --from-browser)")
     p_conf.add_argument("value", nargs="*", help="The value(s) to set")
+    p_conf.add_argument("--stdin", action="store_true",
+                        help="Read the value from stdin (keeps secrets out of shell history / ps)")
+    p_conf.add_argument("--file", metavar="PATH",
+                        help="Read the value from a file (keeps secrets out of shell history / ps)")
     p_conf.add_argument("--from-browser", metavar="BROWSER",
                         choices=["chrome", "firefox", "edge", "brave", "opera"],
                         help="Auto-extract ALL platform cookies from browser (chrome/firefox/edge/brave/opera)")
@@ -1107,6 +1112,44 @@ def _detect_environment():
     return "server" if indicators >= 2 else "local"
 
 
+# Config keys whose value is a credential — these should not be passed on argv,
+# where they leak into shell history and `ps`. (youtube-cookies is just a browser
+# name, not a secret.)
+_SECRET_CONFIG_KEYS = {
+    "github-token", "groq-key", "twitter-cookies", "xhs-cookies", "proxy",
+}
+
+
+def _resolve_config_value(args):
+    """Resolve the configure value from exactly one of --stdin, --file, or argv.
+
+    Reading from stdin/file keeps credentials out of shell history and `ps`.
+    Whitespace (incl. a trailing newline from a heredoc/pipe) is stripped. Selecting
+    more than one source, or pointing --file at a missing path, is a usage error.
+    """
+    pos = " ".join(args.value) if args.value else ""
+    sources = [name for name, on in
+               (("--stdin", getattr(args, "stdin", False)),
+                ("--file", getattr(args, "file", None)),
+                ("a value argument", bool(pos)))
+               if on]
+    if len(sources) > 1:
+        print(f"Error: choose only one of {', '.join(sources)}", file=sys.stderr)
+        sys.exit(2)
+
+    if getattr(args, "stdin", False):
+        return sys.stdin.read().strip()
+    if getattr(args, "file", None):
+        path = os.path.expanduser(args.file)
+        try:
+            with open(path, "r", encoding="utf-8") as fh:
+                return fh.read().strip()
+        except OSError as exc:
+            print(f"Error: cannot read --file {args.file!r}: {exc}", file=sys.stderr)
+            sys.exit(1)
+    return pos
+
+
 def _cmd_configure(args):
     """Set a config value and test it, or auto-extract from browser."""
     import shutil
@@ -1145,7 +1188,13 @@ def _cmd_configure(args):
         print("   or: autoresearch configure --from-browser chrome")
         return
 
-    value = " ".join(args.value) if args.value else ""
+    # Nudge users off argv for secrets BEFORE reading — the value is already exposed
+    # on the command line at this point, but the warning steers the next invocation.
+    if args.value and args.key in _SECRET_CONFIG_KEYS:
+        print(f"Warning: passing {args.key} on the command line leaks it into shell "
+              f"history and `ps`; prefer --stdin or --file PATH.", file=sys.stderr)
+
+    value = _resolve_config_value(args)
     if not value:
         print(f"Missing value for {args.key}")
         return
