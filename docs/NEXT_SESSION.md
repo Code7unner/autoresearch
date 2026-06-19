@@ -54,9 +54,76 @@ reimplements or modifies them. Read CLAUDE.md first; it is authoritative.
    Layer"; "Rate Limits & Anti-Bots in Agentic Scraping".
 8. **Bilingual docs** — docs/install.md is half-Chinese; split or localize for English
    users. (Smallest remaining item — good quick win.)
+9. **Expand `research` connectors** — only 4 of 17 channels feed the `research` fan-out
+   today (HN, GitHub, Exa, Twitter). Add more sources and unify them under one search
+   contract. **AGREED as the next initiative — full plan below.**
 
 ## Suggested starting point
-Two natural next steps: **#4 session health checks** (medium, builds directly on the
-`Channel.check()`/`fix()` surface just added in #3) or **#2 MCP server** (largest, do a
-brainstorming pass on tool shape/scope first). **#8 bilingual docs** is the easy quick
-win. Confirm direction with the user.
+**Next up: hypothesis #9 (expand `research` connectors)** — plan locked below, build in
+phases. After that: **#4 session health checks** (medium, builds on `check()`/`fix()`),
+**#2 MCP server** (largest), **#8 bilingual docs** (quick win).
+
+---
+
+## Plan: expand `research` connectors (#9 — agreed)
+
+### Goal & decisions (locked with user, 2026-06-19)
+- Grow the `research` fan-out beyond the current 4 adapters.
+- **Architecture: route `research` through each channel's own `search()`** (not the
+  parallel functions in `adapters.py`). This is the single-source-of-truth design and
+  closes research code-review **follow-up #6** (adapters.py bypasses `BaseChannel`).
+- **Connector set chosen:** Reddit, YouTube, V2EX (existing channels) + arXiv, Stack
+  Overflow (new channels). China set (Weibo/XHS/Bilibili/Xueqiu) deferred — only worth
+  it for China-focused research.
+
+### Why these (connector assessment)
+Requirement: the upstream tool must support *query search* (not just URL read) and map
+to the research row schema `{source, title, url, snippet, date}`.
+- **Reddit** — `rdt-cli` (tier 0). Live discussions/opinions — highest research value.
+  ⚠️ confirm `rdt` has a search subcommand + needs `rdt login`.
+- **YouTube** — `yt-dlp` `ytsearchN:<query>` returns video metadata (tier 0). Talks/reviews.
+- **V2EX** — channel **already has `search(query, limit)`** (tier 0). Near-free to wire;
+  niche (Chinese dev forum) but proves the channel.search() routing pattern.
+- **arXiv** (new) — `export.arxiv.org/api/query` Atom feed, free, no auth. Papers.
+- **Stack Overflow** (new) — `api.stackexchange.com /search/advanced`, free, ~300 req/day
+  anon. Technical Q&A.
+- Not suitable: RSS/Web (URL-read, not search; web search already = Exa), LinkedIn
+  (ToS + people-search), WeChat/Douyin/Xiaoyuzhou (search limited/niche).
+
+### Architecture (the search contract)
+- `BaseChannel`: add `searchable: bool = False` and
+  `search(self, query: str, limit: int = 5) -> list[dict]` returning research rows
+  (`source/title/url/snippet/date`; dates ISO strings, snippet truncated ~280 chars).
+  Default raises `NotImplementedError`; searchable channels override and set
+  `searchable = True`.
+- `adapters.resolve_research(channels=None)`: build the adapter map from
+  `get_all_channels()` where `ch.searchable`, i.e. `{ch.name: ch.search}`, then apply
+  the existing doctor-active filtering + `plan_research_channels` (skipped/unknown).
+  Retire `SEARCH_ADAPTERS` and the per-tool functions (`search_github` etc.) — their
+  logic moves into the channels. `adapters.py` keeps `plan_research_channels` +
+  `resolve_research` only.
+- `research.run_research` is unchanged (still adapter-injection based, offline-testable);
+  only the *source* of the adapter map changes.
+
+### Phasing (one PR each, TDD)
+- **Phase 1 — contract + migrate existing 4 (closes follow-up #6).** Add `searchable`
+  + `search()` to BaseChannel. Move HN/GitHub/Exa/Twitter search logic from `adapters.py`
+  into their channels; flip `resolve_research` to read from channels. No new connectors.
+- **Phase 2 — wire existing channels:** Reddit, YouTube, V2EX `search()` + `searchable=True`.
+- **Phase 3 — new channels:** arXiv + Stack Overflow (`can_handle`/`check`/`search`;
+  read-by-URL optional). Register in `channels/__init__`, update SKILL platform count
+  (17 → 19) and skill/reference docs.
+
+### Open questions / risks to resolve while building
+- **Naming:** research currently keys Exa results as `exa`, but the channel name is
+  `exa_search`. Routing by `ch.name` makes the key `exa_search`. **Recommend standardizing
+  to channel names** and updating docs/tests + dropping the `_DOCTOR_TO_ADAPTER` alias
+  (accept the `exa` → `exa_search` output-key change; pre-1.x, low blast radius).
+- **rdt-cli search**: verify the subcommand + JSON output shape before Phase 2; gate the
+  adapter on `rdt login` state (inactive → skipped via doctor, per the active-channel design).
+- **yt-dlp `ytsearch` latency**: can be slow; already bounded by the per-channel research
+  timeout — keep limit small.
+- **Stack Exchange quota** (300/day anon) and **arXiv** rate etiquette (~1 req/3s) — fine
+  for interactive research; note in the channel.
+- **doc-consistency**: adding channels trips `test_skill_platform_count_matches_registered_channels`
+  — bump the SKILL "N platforms" count in the same PR.
