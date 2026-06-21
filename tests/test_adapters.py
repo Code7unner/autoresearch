@@ -7,11 +7,18 @@ from types import SimpleNamespace
 import autoresearch.adapters as A
 
 
+class _NoXquikConfig:
+    def get(self, key, default=None):
+        return default
+
+
 def test_twitter_adapter_normalizes_rows(monkeypatch):
     sample = [
         {"id": "123", "author": "@alice", "text": "tokio is great for async rust",
-         "likes": 9, "rts": 1, "time": "Jun 09 16:25"},
+            "likes": 9, "rts": 1, "time": "Jun 09 16:25"},
     ]
+
+    monkeypatch.setattr(A, "Config", lambda: _NoXquikConfig())
 
     def fake_run(cmd, **kw):
         return SimpleNamespace(returncode=0, stdout=json.dumps(sample), stderr="")
@@ -50,6 +57,7 @@ def test_github_adapter_neutralizes_flag_smuggling(monkeypatch):
 
 def test_twitter_adapter_neutralizes_flag_smuggling(monkeypatch):
     captured = {}
+    monkeypatch.setattr(A, "Config", lambda: _NoXquikConfig())
 
     def fake_run(cmd, **kw):
         captured["cmd"] = cmd
@@ -90,9 +98,65 @@ def test_github_adapter_raises_on_nonzero_exit(monkeypatch):
 
 
 def test_twitter_adapter_raises_on_nonzero_exit(monkeypatch):
+    monkeypatch.setattr(A, "Config", lambda: _NoXquikConfig())
+
     def fake_run(cmd, **kw):
         return SimpleNamespace(returncode=2, stdout="", stderr="auth failed")
     monkeypatch.setattr(A.subprocess, "run", fake_run)
     import pytest
     with pytest.raises(Exception):
         A.search_twitter("anything", 5)
+
+
+def test_twitter_adapter_uses_xquik_when_configured(monkeypatch):
+    captured = {}
+
+    class _XquikConfig:
+        def get(self, key, default=None):
+            values = {
+                "xquik_api_key": "test-key",
+                "xquik_base_url": "https://xquik.test",
+            }
+            return values.get(key, default)
+
+    def fake_get(url, **kwargs):
+        captured["url"] = url
+        captured["kwargs"] = kwargs
+
+        class _Response:
+            status_code = 200
+
+            def json(self):
+                return {
+                    "tweets": [
+                        {
+                            "id": "42",
+                            "text": "xquik search works",
+                            "created": "2026-06-21T00:00:00Z",
+                            "author": {"username": "alice"},
+                        }
+                    ]
+                }
+
+        return _Response()
+
+    monkeypatch.setattr(A, "Config", lambda: _XquikConfig())
+    monkeypatch.setattr(A.requests, "get", fake_get)
+    rows = A.search_twitter("agent tools", 500)
+
+    assert captured["url"] == "https://xquik.test/api/v1/x/tweets/search"
+    assert captured["kwargs"]["headers"] == {"x-api-key": "test-key"}
+    assert captured["kwargs"]["params"] == {
+        "q": "agent tools",
+        "queryType": "Latest",
+        "limit": "200",
+    }
+    assert rows == [
+        {
+            "source": "twitter",
+            "title": "@alice: xquik search works",
+            "url": "https://x.com/alice/status/42",
+            "snippet": "xquik search works",
+            "date": "2026-06-21T00:00:00Z",
+        }
+    ]
