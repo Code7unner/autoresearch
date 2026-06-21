@@ -1,15 +1,16 @@
 # -*- coding: utf-8 -*-
-"""Twitter/X — check if twitter-cli or bird CLI is available."""
+"""Twitter/X - check if Xquik, twitter-cli, or bird CLI is available."""
 
 import shutil
 import subprocess
+
 from .base import Channel
 
 
 class TwitterChannel(Channel):
     name = "twitter"
     description = "Twitter/X posts"
-    backends = ["twitter-cli", "bird CLI (legacy)"]
+    backends = ["Xquik API", "twitter-cli", "bird CLI (legacy)"]
     tier = 1
 
     def can_handle(self, url: str) -> bool:
@@ -18,6 +19,9 @@ class TwitterChannel(Channel):
         return "x.com" in d or "twitter.com" in d
 
     def check(self, config=None):
+        if config is not None and config.get("xquik_api_key"):
+            return "ok", "Xquik API configured for tweet search"
+
         # Prefer twitter-cli, fallback to bird/birdx
         twitter = shutil.which("twitter")
         bird = shutil.which("bird") or shutil.which("birdx")

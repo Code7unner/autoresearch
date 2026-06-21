@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from unittest.mock import patch, Mock
+from unittest.mock import Mock, patch
 
 from autoresearch.channels.twitter import TwitterChannel
 
@@ -26,6 +26,19 @@ def test_check_twitter_cli_found_and_auth_ok():
     assert status == "ok"
     assert "twitter-cli" in message
     assert "fully available" in message
+
+
+def test_check_xquik_configured():
+    """Xquik config makes Twitter search available without local CLI setup."""
+    channel = TwitterChannel()
+
+    class _Config:
+        def get(self, key):
+            return "test-key" if key == "xquik_api_key" else None
+
+    status, message = channel.check(_Config())
+    assert status == "ok"
+    assert "Xquik API" in message
 
 
 def test_check_twitter_cli_found_auth_missing():
