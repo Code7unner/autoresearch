@@ -29,6 +29,18 @@ def test_channel_check_contract_with_minimal_runtime(monkeypatch, tmp_path):
         assert isinstance(message, str) and message.strip()
 
 
+def test_every_channel_check_accepts_offline(monkeypatch, tmp_path):
+    """Every channel's check() must accept the `offline` kwarg so `doctor --offline`
+    (which routes through check_all(..., offline=True)) never raises TypeError."""
+    monkeypatch.setattr("shutil.which", lambda _cmd: None)
+    config = Config(config_path=tmp_path / "config.yaml")
+
+    for ch in get_all_channels():
+        status, message = ch.check(config, offline=True)
+        assert status in {"ok", "warn", "off", "error"}
+        assert isinstance(message, str) and message.strip()
+
+
 def test_youtube_warns_when_node_only_and_no_config(monkeypatch, tmp_path):
     """YouTube should warn when only Node.js is installed but no yt-dlp config exists."""
     from autoresearch.channels.youtube import YouTubeChannel

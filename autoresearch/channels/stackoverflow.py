@@ -41,7 +41,7 @@ class StackOverflowChannel(Channel):
         from urllib.parse import urlparse
         return "stackoverflow.com" in urlparse(url).netloc.lower()
 
-    def check(self, config=None):
+    def check(self, config=None, offline: bool = False):
         try:
             data = _get_json(
                 f"{_API}?{urllib.parse.urlencode({'q': 'test', 'site': 'stackoverflow', 'pagesize': 1})}",

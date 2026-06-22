@@ -24,7 +24,7 @@ class WikipediaChannel(Channel):
         from urllib.parse import urlparse
         return "wikipedia.org" in urlparse(url).netloc.lower()
 
-    def check(self, config=None):
+    def check(self, config=None, offline: bool = False):
         try:
             get_json(f"{_API}?{urllib.parse.urlencode({'action': 'query', 'list': 'search', 'srsearch': 'test', 'srlimit': 1, 'format': 'json'})}", timeout=8)
             return "ok", "Public API available (article search, no key required)"

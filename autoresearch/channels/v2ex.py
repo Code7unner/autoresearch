@@ -36,7 +36,7 @@ class V2EXChannel(Channel):
     # Health check
     # ------------------------------------------------------------------ #
 
-    def check(self, config=None):
+    def check(self, config=None, offline: bool = False):
         try:
             _get_json(
                 "https://www.v2ex.com/api/topics/show.json?node_name=python&page=1"

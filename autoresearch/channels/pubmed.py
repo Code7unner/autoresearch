@@ -25,7 +25,7 @@ class PubMedChannel(Channel):
         from urllib.parse import urlparse
         return "pubmed.ncbi.nlm.nih.gov" in urlparse(url).netloc.lower()
 
-    def check(self, config=None):
+    def check(self, config=None, offline: bool = False):
         try:
             get_json(f"{_ESEARCH}?{urllib.parse.urlencode({'db': 'pubmed', 'term': 'test', 'retmax': 1, 'retmode': 'json'})}", timeout=8)
             return "ok", "Public API available (literature search, no key required)"
