@@ -24,6 +24,8 @@ from .xiaoyuzhou import XiaoyuzhouChannel
 from .v2ex import V2EXChannel
 from .xueqiu import XueqiuChannel
 from .hackernews import HackerNewsChannel
+from .arxiv import ArxivChannel
+from .stackoverflow import StackOverflowChannel
 
 
 ALL_CHANNELS: List[Channel] = [
@@ -41,6 +43,8 @@ ALL_CHANNELS: List[Channel] = [
     V2EXChannel(),
     XueqiuChannel(),
     HackerNewsChannel(),
+    ArxivChannel(),
+    StackOverflowChannel(),
     RSSChannel(),
     ExaSearchChannel(),
     WebChannel(),

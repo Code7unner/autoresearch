@@ -179,6 +179,61 @@ class TestChannelSearch:
         YouTubeChannel().search("llm agents", 4)
         assert any(str(a).startswith("ytsearch4:") for a in captured["cmd"])
 
+    def test_arxiv_search_maps_atom_rows(self, monkeypatch):
+        from autoresearch.channels.arxiv import ArxivChannel
+        atom = """<?xml version="1.0"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <entry>
+    <title>Attention Is All You Need</title>
+    <id>http://arxiv.org/abs/1706.03762v5</id>
+    <published>2017-06-12T17:57:34Z</published>
+    <summary>The dominant sequence transduction models are based on RNNs.</summary>
+    <author><name>Ashish Vaswani</name></author>
+  </entry>
+</feed>"""
+        monkeypatch.setattr("autoresearch.channels.arxiv._get_text",
+                            lambda url, timeout=10: atom)
+        rows = ArxivChannel().search("transformers", 5)
+        assert ArxivChannel.searchable is True
+        assert rows[0]["source"] == "arxiv"
+        assert rows[0]["url"] == "http://arxiv.org/abs/1706.03762v5"
+        assert rows[0]["title"] == "Attention Is All You Need"
+        assert rows[0]["date"] == "2017-06-12"
+        assert "dominant" in rows[0]["snippet"]
+
+    def test_arxiv_can_handle(self):
+        from autoresearch.channels.arxiv import ArxivChannel
+        ch = ArxivChannel()
+        assert ch.can_handle("https://arxiv.org/abs/1706.03762") is True
+        assert ch.can_handle("https://example.com") is False
+
+    def test_stackoverflow_search_maps_rows(self, monkeypatch):
+        from autoresearch.channels.stackoverflow import StackOverflowChannel
+        payload = {"items": [{"title": "How to do X in Rust?",
+                              "link": "https://stackoverflow.com/questions/1/x",
+                              "creation_date": 1620444864, "score": 8,
+                              "answer_count": 2, "tags": ["rust"]}],
+                   "quota_remaining": 299}
+        monkeypatch.setattr("autoresearch.channels.stackoverflow._get_json",
+                            lambda url, timeout=10: payload)
+        rows = StackOverflowChannel().search("rust x", 5)
+        assert StackOverflowChannel.searchable is True
+        assert rows[0]["source"] == "stackoverflow"
+        assert rows[0]["url"] == "https://stackoverflow.com/questions/1/x"
+        assert rows[0]["date"] == "2021-05-08"
+        assert "rust" in rows[0]["snippet"]
+
+    def test_stackoverflow_can_handle(self):
+        from autoresearch.channels.stackoverflow import StackOverflowChannel
+        ch = StackOverflowChannel()
+        assert ch.can_handle("https://stackoverflow.com/questions/1/x") is True
+        assert ch.can_handle("https://example.com") is False
+
+    def test_new_channels_registered(self):
+        from autoresearch.channels import get_channel
+        assert get_channel("arxiv") is not None
+        assert get_channel("stackoverflow") is not None
+
 
 class TestChannelFix:
     """`fix()` auto-applies the fixable setup steps (doctor --fix)."""
