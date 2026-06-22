@@ -234,7 +234,7 @@ class TestCheckUpdateRetry:
 
         sequence = [
             R(429, headers={"Retry-After": "3"}),
-            R(200, payload={"tag_name": "v1.0.1"}),
+            R(200, payload={"tag_name": "v1.0.2"}),
         ]
 
         with patch("requests.get", side_effect=sequence):
