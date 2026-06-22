@@ -61,7 +61,8 @@ used elsewhere), so result keys are channel names (`exa_search`, not `exa` — t
   searchable channels — a real but non-searchable channel like `reddit`, or a typo —
   are reported in `_meta.channels_unknown`.
 - A slow/failed channel is recorded in `_meta.errors` and never blocks the others.
-- Currently searchable: `hackernews`, `github`, `exa_search`, `twitter`.
+- Currently searchable: `hackernews`, `github`, `exa_search`, `twitter`, `reddit`
+  (needs `rdt login`), `youtube`.
 
 > Glue-only: `research` **gathers and dedupes** — it does NOT synthesize. You (the
 > agent) read the cited JSON and write the answer. No LLM, no API key. Use this when

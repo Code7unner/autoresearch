@@ -9,6 +9,9 @@ session cookie. Run `rdt login` after installation to authenticate.
 import json
 import shutil
 import subprocess
+from datetime import datetime, timezone
+
+from autoresearch.utils.proc import raise_on_error
 
 from .base import Channel
 
@@ -20,12 +23,45 @@ class RedditChannel(Channel):
     description = "Reddit posts and comments"
     backends = ["rdt-cli"]
     tier = 0
+    searchable = True
 
     def can_handle(self, url: str) -> bool:
         from urllib.parse import urlparse
 
         d = urlparse(url).netloc.lower()
         return "reddit.com" in d or "redd.it" in d
+
+    def search(self, query: str, limit: int = 5) -> list:
+        """research rows from `rdt search` (compact JSON list of posts).
+
+        Needs `rdt login`; doctor reports the channel inactive until authenticated,
+        so a default research run skips it rather than erroring."""
+        # `--` ends option parsing so a query starting with `-` can't smuggle a flag.
+        out = subprocess.run(
+            ["rdt", "search", "-n", str(limit), "--compact", "--json", "--", query],
+            capture_output=True, encoding="utf-8", errors="replace", timeout=30,
+        )
+        raise_on_error(out, "rdt")
+        payload = json.loads(out.stdout or "{}")
+        posts = payload.get("data")
+        if not isinstance(posts, list):
+            posts = []
+        rows = []
+        for p in posts[:limit]:
+            permalink = p.get("permalink") or ""
+            url = (f"https://www.reddit.com{permalink}"
+                   if permalink.startswith("/") else (p.get("url") or ""))
+            ts = p.get("created_utc") or 0
+            date = (datetime.fromtimestamp(ts, timezone.utc).strftime("%Y-%m-%d")
+                    if ts else "")
+            rows.append({
+                "source": "reddit",
+                "title": p.get("title") or "",
+                "url": url,
+                "snippet": (p.get("selftext") or "")[:280],
+                "date": date,
+            })
+        return rows
 
     def check(self, config=None):
         rdt = shutil.which("rdt")
