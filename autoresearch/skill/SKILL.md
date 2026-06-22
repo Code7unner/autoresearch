@@ -2,9 +2,10 @@
 name: autoresearch
 description: >
   Give your AI agent eyes to see the entire internet.
-  Search and read 19 platforms: Twitter/X, Reddit, Hacker News, YouTube, GitHub, Bilibili,
+  Search and read 22 platforms: Twitter/X, Reddit, Hacker News, YouTube, GitHub, Bilibili,
   XiaoHongShu, Douyin, Weibo, WeChat Articles, Xiaoyuzhou Podcast, LinkedIn,
-  V2EX, Xueqiu, arXiv, Stack Overflow, RSS, Exa web search, and any web page.
+  V2EX, Xueqiu, arXiv, Stack Overflow, Wikipedia, Semantic Scholar, PubMed,
+  RSS, Exa web search, and any web page.
   Zero config for 8 channels. Use when the user asks to search, read, or interact
   on any supported platform, shares a URL, or asks to search the web.
   Triggers: "search twitter", "search xiaohongshu", "watch this video",
@@ -20,7 +21,7 @@ metadata:
 
 # autoresearch — Usage Guide
 
-Upstream tools for 19 platforms. Call them directly.
+Upstream tools for 22 platforms. Call them directly.
 
 Run `autoresearch doctor` to check which channels are available.
 
@@ -62,7 +63,8 @@ used elsewhere), so result keys are channel names (`exa_search`, not `exa` — t
   are reported in `_meta.channels_unknown`.
 - A slow/failed channel is recorded in `_meta.errors` and never blocks the others.
 - Currently searchable: `hackernews`, `github`, `exa_search`, `twitter`, `reddit`
-  (needs `rdt login`), `youtube`, `arxiv`, `stackoverflow`.
+  (needs `rdt login`), `youtube`, `arxiv`, `stackoverflow`, `wikipedia`,
+  `semanticscholar`, `pubmed`.
 
 > Glue-only: `research` **gathers and dedupes** — it does NOT synthesize. You (the
 > agent) read the cited JSON and write the answer. No LLM, no API key. Use this when
