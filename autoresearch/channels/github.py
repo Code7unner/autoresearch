@@ -40,7 +40,7 @@ class GitHubChannel(Channel):
             "date": it.get("updatedAt") or "",
         } for it in items[:limit]]
 
-    def check(self, config=None):
+    def check(self, config=None, offline: bool = False):
         gh = shutil.which("gh")
         if not gh:
             return "warn", "gh CLI not installed. Install: https://cli.github.com"

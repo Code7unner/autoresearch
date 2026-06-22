@@ -41,7 +41,7 @@ class SemanticScholarChannel(Channel):
         from urllib.parse import urlparse
         return "semanticscholar.org" in urlparse(url).netloc.lower()
 
-    def check(self, config=None):
+    def check(self, config=None, offline: bool = False):
         try:
             _get_json_retrying(f"{_API}?{urllib.parse.urlencode({'query': 'test', 'limit': 1, 'fields': 'title'})}", timeout=8)
             return "ok", "Public API available (paper search, no key required; rate-limited)"

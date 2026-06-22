@@ -44,22 +44,26 @@ class TwitterChannel(Channel):
             })
         return rows
 
-    def check(self, config=None):
+    def check(self, config=None, offline: bool = False):
         # Prefer twitter-cli, fallback to bird/birdx
         twitter = shutil.which("twitter")
         bird = shutil.which("bird") or shutil.which("birdx")
 
-        if twitter:
-            return self._check_twitter_cli(twitter)
-        elif bird:
-            return self._check_bird(bird)
-        else:
-            return "warn", (
+        if not twitter and not bird:
+            return "off", (
                 "Twitter CLI not installed. Install with:\n"
                 "  pipx install twitter-cli\n"
                 "or:\n"
                 "  uv tool install twitter-cli"
             )
+
+        if offline:
+            cli = "twitter-cli" if twitter else "bird CLI"
+            return "ok", f"{cli} installed (--offline: session not probed)"
+
+        if twitter:
+            return self._check_twitter_cli(twitter)
+        return self._check_bird(bird)
 
     def _check_twitter_cli(self, binary: str):
         try:

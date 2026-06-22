@@ -34,7 +34,7 @@ class ArxivChannel(Channel):
         from urllib.parse import urlparse
         return "arxiv.org" in urlparse(url).netloc.lower()
 
-    def check(self, config=None):
+    def check(self, config=None, offline: bool = False):
         try:
             _get_text(f"{_API}?search_query=all:test&max_results=0", timeout=8)
             return "ok", "Public API available (paper search, no key required)"

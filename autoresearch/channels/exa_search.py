@@ -44,7 +44,7 @@ class ExaSearchChannel(Channel):
             rows.append(cur)
         return rows[:limit]
 
-    def check(self, config=None):
+    def check(self, config=None, offline: bool = False):
         mcporter = shutil.which("mcporter")
         if not mcporter:
             return "off", (

@@ -54,7 +54,7 @@ class YouTubeChannel(Channel):
             })
         return rows
 
-    def check(self, config=None):
+    def check(self, config=None, offline: bool = False):
         if not shutil.which("yt-dlp"):
             return "off", "yt-dlp not installed. Install: pip install yt-dlp"
         # Check JS runtime

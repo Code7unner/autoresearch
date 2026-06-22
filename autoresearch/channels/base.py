@@ -40,10 +40,14 @@ class Channel(ABC):
         """
         raise NotImplementedError(f"{self.name or type(self).__name__} does not support search")
 
-    def check(self, config=None) -> Tuple[str, str]:
+    def check(self, config=None, offline: bool = False) -> Tuple[str, str]:
         """
         Check if this channel's upstream tool is available.
         Returns (status, message) where status is 'ok'/'warn'/'off'/'error'.
+
+        ``offline=True`` asks channels that perform a network liveness probe to skip
+        it and report install/config status only. Channels with no network probe
+        ignore the flag.
         """
         return "ok", f"{', '.join(self.backends) if self.backends else 'built-in'}"
 

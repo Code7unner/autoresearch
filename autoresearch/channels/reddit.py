@@ -63,7 +63,7 @@ class RedditChannel(Channel):
             })
         return rows
 
-    def check(self, config=None):
+    def check(self, config=None, offline: bool = False):
         rdt = shutil.which("rdt")
         if not rdt:
             return "off", (

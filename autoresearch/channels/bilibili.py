@@ -35,7 +35,7 @@ class BilibiliChannel(Channel):
         d = urlparse(url).netloc.lower()
         return "bilibili.com" in d or "b23.tv" in d
 
-    def check(self, config=None):
+    def check(self, config=None, offline: bool = False):
         if not shutil.which("yt-dlp"):
             return "off", "yt-dlp not installed. Install: pip install yt-dlp"
 

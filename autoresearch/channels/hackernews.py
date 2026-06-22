@@ -161,7 +161,7 @@ class HackerNewsChannel(Channel):
     # Health check
     # ------------------------------------------------------------------ #
 
-    def check(self, config=None):
+    def check(self, config=None, offline: bool = False):
         try:
             _get_json(f"{_BASE}/search?query=test&tags=story")
             return "ok", "Public API available (story search, comment threads via Algolia)"

@@ -116,6 +116,8 @@ def main():
     p_doctor = sub.add_parser("doctor", help="Check platform availability")
     p_doctor.add_argument("--fix", action="store_true",
                           help="Auto-fix the fixable (yt-dlp JS runtime, Exa/mcporter, config perms)")
+    p_doctor.add_argument("--offline", action="store_true",
+                          help="Skip network liveness probes; report install/config status only")
 
     # ── uninstall ──
     p_uninstall = sub.add_parser("uninstall", help="Remove all autoresearch config, tokens, and skill files")
@@ -170,7 +172,7 @@ def main():
         sys.exit(0)
 
     if args.command == "doctor":
-        _cmd_doctor(fix=getattr(args, "fix", False))
+        _cmd_doctor(fix=getattr(args, "fix", False), offline=getattr(args, "offline", False))
     elif args.command == "check-update":
         _cmd_check_update()
     elif args.command == "watch":
@@ -1560,7 +1562,7 @@ def _cmd_uninstall(args):
     print("  npm uninstall -g undici")
 
 
-def _cmd_doctor(fix=False):
+def _cmd_doctor(fix=False, offline=False):
     from autoresearch.config import Config
     from autoresearch.doctor import check_all, format_report, run_fixes
     try:
@@ -1568,7 +1570,7 @@ def _cmd_doctor(fix=False):
     except ImportError:
         rprint = print
     config = Config()
-    results = check_all(config)
+    results = check_all(config, offline=offline)
     rprint(format_report(results))
 
     if fix:
@@ -1584,7 +1586,7 @@ def _cmd_doctor(fix=False):
         # Re-check so the user sees the post-fix status.
         print()
         print("Re-checking...")
-        rprint(format_report(check_all(config)))
+        rprint(format_report(check_all(config, offline=offline)))
 
     # Auto-install skill if not already present (fixes #154)
     _install_skill()

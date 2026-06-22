@@ -40,6 +40,17 @@ reimplements or modifies them. Read CLAUDE.md first; it is authoritative.
     once, then degrades gracefully). Optional follow-on: wire a free `S2_API_KEY`
     (env/config) to make it reliable.
 
+- **#4 Session/cookie health checks in doctor** — every session channel now does a
+  real live/dead probe with a standardized status vocabulary (`off` = tool/creds
+  absent, `warn` = configured-but-dead → re-auth, `ok` = live). LinkedIn gained a real
+  liveness probe (`mcporter list linkedin`) instead of a bare config-entry grep; Twitter
+  "not installed" fixed `warn`→`off`. `format_report` now surfaces dead sessions in a
+  prominent "⚠ Needs attention — re-authenticate" block instead of burying them in the
+  "unlock more channels" line. New `doctor --offline` flag skips network probes
+  (`Channel.check(config, offline=False)` contract; offline → install/config status
+  only). Design: docs/design/session-health-checks.md. (this session)
+  - "Expiring soon" early-warning was explicitly de-scoped (liveness only).
+
 ## Hard rules (from CLAUDE.md — do not violate)
 - NEVER modify upstream open-source projects. autoresearch only routes/calls.
 - External upstream deps owned by "Panniantong" (mcp-server-weibo, wechat-article-for-ai)
@@ -57,9 +68,6 @@ reimplements or modifies them. Read CLAUDE.md first; it is authoritative.
    practices: bundle workflows, sensible defaults, concrete examples, minimal tool
    count. Refs: AWS "MCP strategies" guide; Jfokus "MCP Servers Beyond 101".
    (Largest remaining item — design scope with the brainstorming skill first.)
-4. **Session/cookie health checks in doctor** — Twitter/LinkedIn/XHS sessions expire
-   silently; doctor should detect "expired/expiring" via a cheap probe, not just
-   "installed". Pairs naturally with the `Channel.check()`/`fix()` surface from #3.
 5. **Fetch-layer robustness** — unified retry/backoff + anti-bot/proxy fallbacks shared
    across channels. Refs: DEV "Reliable Web-Connected AI Agents Start at the Fetch
    Layer"; "Rate Limits & Anti-Bots in Agentic Scraping".
@@ -67,10 +75,8 @@ reimplements or modifies them. Read CLAUDE.md first; it is authoritative.
    users. (Smallest remaining item — good quick win.)
 
 ## Suggested starting point
-Remaining: **#4 session health checks** (medium — builds directly on the
-`Channel.check()`/`fix()` surface), **#5 fetch-layer robustness**, **#2 MCP server**
-(largest — brainstorm tool shape first), **#8 bilingual docs** (quick win). Confirm
-direction with the user.
+Remaining: **#5 fetch-layer robustness**, **#2 MCP server** (largest — brainstorm tool
+shape first), **#8 bilingual docs** (quick win). Confirm direction with the user.
 
 > The #9 research-connector expansion is complete — now up to 11 searchable channels
 > (see "Done" above). Possible #9 follow-ons if desired: an `S2_API_KEY` for reliable
