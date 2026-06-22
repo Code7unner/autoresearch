@@ -136,6 +136,7 @@ class HackerNewsChannel(Channel):
     description = "Hacker News stories and comment threads"
     backends = ["Algolia HN API (public)"]
     tier = 0
+    searchable = True
 
     # ------------------------------------------------------------------ #
     # URL routing
@@ -170,6 +171,22 @@ class HackerNewsChannel(Channel):
     # ------------------------------------------------------------------ #
     # Data-fetching methods
     # ------------------------------------------------------------------ #
+
+    def search(self, query: str, limit: int = 5) -> list:
+        """research rows from HN story search (wraps `search_stories`)."""
+        rows = []
+        for hit in self.search_stories(query, limit)[:limit]:
+            object_id = hit.get("objectID")
+            url = hit.get("url") or (
+                f"https://news.ycombinator.com/item?id={object_id}" if object_id else "")
+            rows.append({
+                "source": "hackernews",
+                "title": hit.get("title") or "",
+                "url": url,
+                "snippet": "",
+                "date": hit.get("created_at") or "",
+            })
+        return rows
 
     def search_stories(self, query: str, limit: int = 20) -> list:
         """Search stories.

@@ -197,26 +197,8 @@ def test_plan_explicit_flags_unknown_and_nonsearchable():
     assert unknown == ["bogus", "reddit"]
 
 
-# ── Item 6: HN adapter routes through the channel's own search ──
-
-
-def test_search_hackernews_maps_channel_rows(monkeypatch):
-    import autoresearch.adapters as adapters_mod
-    from autoresearch.channels import hackernews as hn
-
-    def fake_search(self, query, limit=20):
-        return [{
-            "objectID": "42", "title": "T", "url": "",
-            "author": "a", "points": 1, "num_comments": 0, "created_at": "2020",
-        }]
-
-    monkeypatch.setattr(hn.HackerNewsChannel, "search_stories", fake_search)
-    rows = adapters_mod.search_hackernews("q", 5)
-    assert rows[0]["source"] == "hackernews"
-    assert rows[0]["title"] == "T"
-    # Empty url falls back to the HN item permalink.
-    assert rows[0]["url"] == "https://news.ycombinator.com/item?id=42"
-    assert rows[0]["date"] == "2020"
+# (HN adapter row-mapping is now tested as HackerNewsChannel.search in
+#  test_channels.py::TestChannelSearch — research routes through channel.search().)
 
 
 # ── Item 4: CLI rejects non-positive --limit / --timeout ──

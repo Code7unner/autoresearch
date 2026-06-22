@@ -1,8 +1,12 @@
 # -*- coding: utf-8 -*-
 """Twitter/X — check if twitter-cli or bird CLI is available."""
 
+import json
 import shutil
 import subprocess
+
+from autoresearch.utils.proc import raise_on_error
+
 from .base import Channel
 
 
@@ -11,11 +15,34 @@ class TwitterChannel(Channel):
     description = "Twitter/X posts"
     backends = ["twitter-cli", "bird CLI (legacy)"]
     tier = 1
+    searchable = True
 
     def can_handle(self, url: str) -> bool:
         from urllib.parse import urlparse
         d = urlparse(url).netloc.lower()
         return "x.com" in d or "twitter.com" in d
+
+    def search(self, query: str, limit: int = 5) -> list:
+        """research rows from recent tweets via twitter-cli. Needs cookies configured."""
+        # `--` ends option parsing so a query starting with `-` can't smuggle a flag.
+        out = subprocess.run(
+            ["twitter", "-c", "search", "-n", str(limit), "--", query],
+            capture_output=True, encoding="utf-8", errors="replace", timeout=30,
+        )
+        raise_on_error(out, "twitter")
+        items = json.loads(out.stdout or "[]")
+        rows = []
+        for it in items[:limit]:
+            author = (it.get("author") or "").lstrip("@")
+            text = it.get("text") or ""
+            rows.append({
+                "source": "twitter",
+                "title": f"{it.get('author', '')}: {text[:60]}".strip(),
+                "url": f"https://x.com/{author}/status/{it.get('id')}" if author else "",
+                "snippet": text[:280],
+                "date": it.get("time") or "",
+            })
+        return rows
 
     def check(self, config=None):
         # Prefer twitter-cli, fallback to bird/birdx
