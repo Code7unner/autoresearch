@@ -20,6 +20,101 @@ def _which_map(present):
     return lambda tool: f"/usr/bin/{tool}" if tool in present else None
 
 
+class TestChannelSearch:
+    """Channels expose a uniform `search(query, limit) -> research rows`.
+    `research` routes through these (single source of truth); the per-tool
+    functions that used to live in adapters.py are gone."""
+
+    from types import SimpleNamespace as _NS
+
+    def test_base_not_searchable(self):
+        from autoresearch.channels.base import Channel
+        assert Channel.searchable is False
+
+    def test_github_search_normalizes_rows(self, monkeypatch):
+        from autoresearch.channels.github import GitHubChannel
+        sample = [{"fullName": "tokio-rs/tokio", "description": "async runtime",
+                   "url": "https://github.com/tokio-rs/tokio", "updatedAt": "2026-01-01"}]
+        monkeypatch.setattr("autoresearch.channels.github.subprocess.run",
+                            lambda cmd, **kw: self._NS(returncode=0, stdout=json.dumps(sample), stderr=""))
+        rows = GitHubChannel().search("async rust", 5)
+        assert GitHubChannel.searchable is True
+        assert rows[0]["source"] == "github"
+        assert rows[0]["url"] == "https://github.com/tokio-rs/tokio"
+        for k in ("source", "title", "url", "snippet", "date"):
+            assert k in rows[0]
+
+    def test_github_search_neutralizes_flag_smuggling(self, monkeypatch):
+        from autoresearch.channels.github import GitHubChannel
+        captured = {}
+
+        def fake_run(cmd, **kw):
+            captured["cmd"] = cmd
+            return self._NS(returncode=0, stdout="[]", stderr="")
+
+        monkeypatch.setattr("autoresearch.channels.github.subprocess.run", fake_run)
+        GitHubChannel().search("--version", 5)
+        cmd = captured["cmd"]
+        assert "--" in cmd and cmd.index("--") < cmd.index("--version")
+
+    def test_github_search_raises_on_nonzero_exit(self, monkeypatch):
+        from autoresearch.channels.github import GitHubChannel
+        monkeypatch.setattr("autoresearch.channels.github.subprocess.run",
+                            lambda cmd, **kw: self._NS(returncode=1, stdout="", stderr="gh: not logged in"))
+        import pytest
+        with pytest.raises(Exception) as ei:
+            GitHubChannel().search("anything", 5)
+        assert "not logged in" in str(ei.value)
+
+    def test_twitter_search_normalizes_rows(self, monkeypatch):
+        from autoresearch.channels.twitter import TwitterChannel
+        sample = [{"id": "123", "author": "@alice", "text": "tokio is great for async rust",
+                   "time": "Jun 09 16:25"}]
+        monkeypatch.setattr("autoresearch.channels.twitter.subprocess.run",
+                            lambda cmd, **kw: self._NS(returncode=0, stdout=json.dumps(sample), stderr=""))
+        rows = TwitterChannel().search("rust async", 5)
+        assert rows[0]["source"] == "twitter"
+        assert rows[0]["url"] == "https://x.com/alice/status/123"
+        assert "tokio" in rows[0]["snippet"]
+
+    def test_twitter_search_neutralizes_flag_smuggling(self, monkeypatch):
+        from autoresearch.channels.twitter import TwitterChannel
+        captured = {}
+
+        def fake_run(cmd, **kw):
+            captured["cmd"] = cmd
+            return self._NS(returncode=0, stdout="[]", stderr="")
+
+        monkeypatch.setattr("autoresearch.channels.twitter.subprocess.run", fake_run)
+        TwitterChannel().search("-n 9999", 5)
+        cmd = captured["cmd"]
+        assert "--" in cmd and cmd.index("--") < cmd.index("-n 9999")
+
+    def test_exa_search_escapes_quotes(self, monkeypatch):
+        from autoresearch.channels.exa_search import ExaSearchChannel
+        captured = {}
+
+        def fake_run(cmd, **kw):
+            captured["cmd"] = cmd
+            return self._NS(returncode=0, stdout="", stderr="")
+
+        monkeypatch.setattr("autoresearch.channels.exa_search.subprocess.run", fake_run)
+        ExaSearchChannel().search('foo") + evil("', 5)
+        call_arg = captured["cmd"][2]
+        assert '") + evil("' not in call_arg
+        assert '\\"' in call_arg
+
+    def test_hackernews_search_maps_rows(self, monkeypatch):
+        from autoresearch.channels.hackernews import HackerNewsChannel
+        monkeypatch.setattr(HackerNewsChannel, "search_stories",
+                            lambda self, q, limit=20: [{"objectID": "42", "title": "T",
+                                                        "url": "", "created_at": "2020"}])
+        rows = HackerNewsChannel().search("q", 5)
+        assert rows[0]["source"] == "hackernews"
+        assert rows[0]["url"] == "https://news.ycombinator.com/item?id=42"
+        assert rows[0]["date"] == "2020"
+
+
 class TestChannelFix:
     """`fix()` auto-applies the fixable setup steps (doctor --fix)."""
 
