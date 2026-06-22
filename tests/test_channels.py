@@ -114,6 +114,71 @@ class TestChannelSearch:
         assert rows[0]["url"] == "https://news.ycombinator.com/item?id=42"
         assert rows[0]["date"] == "2020"
 
+    def test_reddit_search_maps_rows(self, monkeypatch):
+        from autoresearch.channels.reddit import RedditChannel
+        envelope = {"ok": True, "schema_version": "1", "data": [
+            {"title": "Async in Rust", "permalink": "/r/rust/comments/abc/async/",
+             "url": "https://example.com/x", "subreddit": "rust", "author": "bob",
+             "score": 42, "num_comments": 7, "created_utc": 1700000000.0,
+             "selftext": "tokio vs async-std"}]}
+        monkeypatch.setattr("autoresearch.channels.reddit.subprocess.run",
+                            lambda cmd, **kw: self._NS(returncode=0, stdout=json.dumps(envelope), stderr=""))
+        rows = RedditChannel().search("rust async", 5)
+        assert RedditChannel.searchable is True
+        assert rows[0]["source"] == "reddit"
+        assert rows[0]["url"] == "https://www.reddit.com/r/rust/comments/abc/async/"
+        assert "tokio" in rows[0]["snippet"]
+        assert rows[0]["date"] == "2023-11-14"
+
+    def test_reddit_search_neutralizes_flag_smuggling(self, monkeypatch):
+        from autoresearch.channels.reddit import RedditChannel
+        captured = {}
+
+        def fake_run(cmd, **kw):
+            captured["cmd"] = cmd
+            return self._NS(returncode=0, stdout='{"ok":true,"data":[]}', stderr="")
+
+        monkeypatch.setattr("autoresearch.channels.reddit.subprocess.run", fake_run)
+        RedditChannel().search("--help", 5)
+        cmd = captured["cmd"]
+        assert "--" in cmd and cmd.index("--") < cmd.index("--help")
+
+    def test_reddit_search_raises_on_nonzero_exit(self, monkeypatch):
+        from autoresearch.channels.reddit import RedditChannel
+        monkeypatch.setattr("autoresearch.channels.reddit.subprocess.run",
+                            lambda cmd, **kw: self._NS(returncode=1, stdout="", stderr="not logged in"))
+        import pytest
+        with pytest.raises(Exception) as ei:
+            RedditChannel().search("q", 5)
+        assert "not logged in" in str(ei.value)
+
+    def test_youtube_search_maps_rows(self, monkeypatch):
+        from autoresearch.channels.youtube import YouTubeChannel
+        data = {"entries": [{"id": "FUg1", "title": "Rust async runtime",
+                             "url": "https://www.youtube.com/watch?v=FUg1",
+                             "uploader": "Rusty", "description": "a deep dive talk",
+                             "timestamp": 1700000000}]}
+        monkeypatch.setattr("autoresearch.channels.youtube.subprocess.run",
+                            lambda cmd, **kw: self._NS(returncode=0, stdout=json.dumps(data), stderr=""))
+        rows = YouTubeChannel().search("rust async", 3)
+        assert YouTubeChannel.searchable is True
+        assert rows[0]["source"] == "youtube"
+        assert rows[0]["url"] == "https://www.youtube.com/watch?v=FUg1"
+        assert "deep dive" in rows[0]["snippet"]
+        assert rows[0]["date"] == "2023-11-14"
+
+    def test_youtube_search_uses_ytsearch_target(self, monkeypatch):
+        from autoresearch.channels.youtube import YouTubeChannel
+        captured = {}
+
+        def fake_run(cmd, **kw):
+            captured["cmd"] = cmd
+            return self._NS(returncode=0, stdout='{"entries":[]}', stderr="")
+
+        monkeypatch.setattr("autoresearch.channels.youtube.subprocess.run", fake_run)
+        YouTubeChannel().search("llm agents", 4)
+        assert any(str(a).startswith("ytsearch4:") for a in captured["cmd"])
+
 
 class TestChannelFix:
     """`fix()` auto-applies the fixable setup steps (doctor --fix)."""
