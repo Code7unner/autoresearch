@@ -9,14 +9,15 @@ Xiaoyuzhou, LinkedIn, V2EX, Xueqiu, RSS, Exa web search, any web page). It's a
 reimplements or modifies them. Read CLAUDE.md first; it is authoritative.
 
 ## Current state
-- Version 1.0.1. ~171 tests pass (`pytest tests/ -v`). 19 channels registered.
+- Version 1.0.1. ~177 tests pass (`pytest tests/ -v`). 22 channels registered.
 - The project was rebranded from "Agent Reach" to "autoresearch" (CLI command,
   package `autoresearch/`, class `AutoResearch`). Rebrand is merged to main.
 - Active channels depend on the machine — run `autoresearch doctor` to see status.
   On the dev machine these were active: GitHub, Twitter/X, LinkedIn, HN, V2EX, RSS,
   Exa, Web (Jina), WeChat.
-- `research` fans out across 8 searchable channels (hackernews, github, exa_search,
-  twitter, reddit, youtube, arxiv, stackoverflow), all via `Channel.search()`.
+- `research` fans out across up to 11 searchable channels (hackernews, github,
+  exa_search, twitter, reddit, youtube, arxiv, stackoverflow, wikipedia,
+  semanticscholar, pubmed), all via `Channel.search()`.
 
 ## Done (do not redo)
 - **#1 `research` command** — multi-source fan-out + dedupe, grouped cited JSON. (PR #9)
@@ -31,9 +32,13 @@ reimplements or modifies them. Read CLAUDE.md first; it is authoritative.
   config.yaml `chmod 0600`; manual hints for non-auto-fixable cases. New
   `Channel.fix(config) -> (changed, message)` mirrors `check()`. (PR #12)
 - **#9 Expand `research` connectors** — unified `Channel.search()` contract; migrated the
-  original 4 onto it (PR #15, closes follow-up #6); added Reddit + YouTube (PR #16) and
-  arXiv + Stack Overflow (PR #17). Now 8 searchable channels. V2EX dropped (its API has
-  no search endpoint — `search()` is a documented stub).
+  original 4 onto it (PR #15, closes follow-up #6); added Reddit + YouTube (PR #16),
+  arXiv + Stack Overflow (PR #17), and Wikipedia + Semantic Scholar + PubMed (PR #19).
+  Now up to 11 searchable channels. V2EX dropped (its API has no search endpoint —
+  `search()` is a documented stub).
+  - Known limitation: keyless **Semantic Scholar** is heavily 429-rate-limited (retries
+    once, then degrades gracefully). Optional follow-on: wire a free `S2_API_KEY`
+    (env/config) to make it reliable.
 
 ## Hard rules (from CLAUDE.md — do not violate)
 - NEVER modify upstream open-source projects. autoresearch only routes/calls.
@@ -67,7 +72,8 @@ Remaining: **#4 session health checks** (medium — builds directly on the
 (largest — brainstorm tool shape first), **#8 bilingual docs** (quick win). Confirm
 direction with the user.
 
-> The #9 research-connector expansion (phases 1–3) is complete — see "Done" above.
-> Possible #9 follow-ons if desired: more connectors (Weibo/XHS/Bilibili for
-> China-focused research; PyPI/npm; Wikipedia for grounding), or read-by-URL support
-> for the new arXiv / Stack Overflow channels.
+> The #9 research-connector expansion is complete — now up to 11 searchable channels
+> (see "Done" above). Possible #9 follow-ons if desired: an `S2_API_KEY` for reliable
+> Semantic Scholar; more connectors (Weibo/XHS/Bilibili for China-focused research; npm;
+> note PyPI has no public search API); or read-by-URL support for the new search-only
+> channels (arXiv, Stack Overflow, Wikipedia, Semantic Scholar, PubMed).
