@@ -234,6 +234,74 @@ class TestChannelSearch:
         assert get_channel("arxiv") is not None
         assert get_channel("stackoverflow") is not None
 
+    def test_wikipedia_search_maps_rows(self, monkeypatch):
+        from autoresearch.channels.wikipedia import WikipediaChannel
+        payload = {"query": {"search": [{
+            "title": "Transformer (deep learning)", "pageid": 61603971,
+            "timestamp": "2026-06-17T19:00:42Z",
+            "snippet": 'In deep learning, the <span class="searchmatch">transformer</span> is a family'}]}}
+        monkeypatch.setattr("autoresearch.channels.wikipedia.get_json",
+                            lambda url, timeout=10: payload)
+        rows = WikipediaChannel().search("transformer", 5)
+        assert WikipediaChannel.searchable is True
+        assert rows[0]["source"] == "wikipedia"
+        assert "61603971" in rows[0]["url"]
+        assert rows[0]["date"] == "2026-06-17"
+        assert "<span" not in rows[0]["snippet"]  # HTML stripped
+        assert "transformer is a family" in rows[0]["snippet"]
+
+    def test_wikipedia_can_handle(self):
+        from autoresearch.channels.wikipedia import WikipediaChannel
+        ch = WikipediaChannel()
+        assert ch.can_handle("https://en.wikipedia.org/wiki/Transformer") is True
+        assert ch.can_handle("https://example.com") is False
+
+    def test_semanticscholar_search_maps_rows(self, monkeypatch):
+        from autoresearch.channels.semanticscholar import SemanticScholarChannel
+        payload = {"data": [{"paperId": "abc",
+                             "url": "https://www.semanticscholar.org/paper/abc",
+                             "title": "Masked-attention Mask Transformer", "year": 2021,
+                             "abstract": "We present a new architecture.",
+                             "authors": [{"name": "A B"}]}]}
+        monkeypatch.setattr("autoresearch.channels.semanticscholar.get_json",
+                            lambda url, timeout=10: payload)
+        rows = SemanticScholarChannel().search("transformer", 5)
+        assert SemanticScholarChannel.searchable is True
+        assert rows[0]["source"] == "semanticscholar"
+        assert rows[0]["url"] == "https://www.semanticscholar.org/paper/abc"
+        assert rows[0]["date"] == "2021"
+        assert "new architecture" in rows[0]["snippet"]
+
+    def test_pubmed_search_maps_rows(self, monkeypatch):
+        from autoresearch.channels.pubmed import PubMedChannel
+
+        def fake_get_json(url, timeout=10):
+            if "esearch" in url:
+                return {"esearchresult": {"idlist": ["42324300"]}}
+            return {"result": {"uids": ["42324300"], "42324300": {
+                "title": "Deletion of activating transcription factor 3",
+                "sortpubdate": "2026/06/21 00:00", "source": "Sci Rep",
+                "authors": [{"name": "Su L"}]}}}
+
+        monkeypatch.setattr("autoresearch.channels.pubmed.get_json", fake_get_json)
+        rows = PubMedChannel().search("crispr", 5)
+        assert PubMedChannel.searchable is True
+        assert rows[0]["source"] == "pubmed"
+        assert rows[0]["url"] == "https://pubmed.ncbi.nlm.nih.gov/42324300/"
+        assert rows[0]["date"] == "2026-06-21"
+        assert "Sci Rep" in rows[0]["snippet"]
+
+    def test_pubmed_empty_idlist_returns_no_rows(self, monkeypatch):
+        from autoresearch.channels.pubmed import PubMedChannel
+        monkeypatch.setattr("autoresearch.channels.pubmed.get_json",
+                            lambda url, timeout=10: {"esearchresult": {"idlist": []}})
+        assert PubMedChannel().search("zzznoresults", 5) == []
+
+    def test_more_channels_registered(self):
+        from autoresearch.channels import get_channel
+        for name in ("wikipedia", "semanticscholar", "pubmed"):
+            assert get_channel(name) is not None, name
+
 
 class TestChannelFix:
     """`fix()` auto-applies the fixable setup steps (doctor --fix)."""
