@@ -135,6 +135,44 @@ def test_meta_skipped_unknown_default_empty():
     assert out["_meta"]["channels_unknown"] == []
 
 
+# ── A channel that runs but returns 0 rows must be reported, not silently dropped ──
+
+
+def test_meta_reports_result_counts_and_empty_channels():
+    adapters = {
+        "github": _fake([{"source": "github", "title": "A", "url": "http://x/1"}]),
+        "hackernews": _fake([]),  # ran cleanly, zero results (e.g. keyword API, NL query)
+    }
+    out = run_research("q", adapters=adapters)
+    assert out["_meta"]["result_counts"] == {"github": 1, "hackernews": 0}
+    assert out["_meta"]["channels_empty"] == ["hackernews"]
+    # The empty channel ran (queried) but has no results bucket — and is NOT an error.
+    assert "hackernews" in out["_meta"]["channels_queried"]
+    assert "hackernews" not in out["results"]
+    assert "hackernews" not in out["_meta"]["errors"]
+
+
+def test_empty_channels_excludes_errored_channels():
+    def boom(question, limit):
+        raise RuntimeError("api down")
+
+    adapters = {"github": _fake([]), "reddit": boom}
+    out = run_research("q", adapters=adapters)
+    # An errored channel is an error, never counted as "empty" and not in result_counts.
+    assert out["_meta"]["channels_empty"] == ["github"]
+    assert "reddit" not in out["_meta"]["result_counts"]
+    assert "reddit" in out["_meta"]["errors"]
+
+
+def test_default_timeout_not_below_slowest_channel_budget():
+    """The outer fan-out deadline must default to >= the slowest per-channel search
+    subprocess timeout (~45s), else valid slow channels get cut and mislabeled."""
+    import inspect
+
+    default = inspect.signature(run_research).parameters["timeout"].default
+    assert default >= 45.0
+
+
 # ── Item 5: normalize_url uses an explicit scheme, not a "//" substring ──
 
 
