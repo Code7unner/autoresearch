@@ -5,7 +5,7 @@ import json
 import shutil
 import subprocess
 
-from autoresearch.utils.proc import raise_on_error
+from autoresearch.utils.proc import run_with_retry
 
 from .base import Channel
 
@@ -23,13 +23,17 @@ class TwitterChannel(Channel):
         return "x.com" in d or "twitter.com" in d
 
     def search(self, query: str, limit: int = 5) -> list:
-        """research rows from recent tweets via twitter-cli. Needs cookies configured."""
+        """research rows from recent tweets via twitter-cli. Needs cookies configured.
+
+        twitter-cli is the flakiest search backend (cold session / transient network),
+        so retry a couple of times before surfacing a per-channel error to the fan-out.
+        """
         # `--` ends option parsing so a query starting with `-` can't smuggle a flag.
-        out = subprocess.run(
+        out = run_with_retry(
             ["twitter", "-c", "search", "-n", str(limit), "--", query],
+            "twitter", retries=2,
             capture_output=True, encoding="utf-8", errors="replace", timeout=30,
         )
-        raise_on_error(out, "twitter")
         items = json.loads(out.stdout or "[]")
         rows = []
         for it in items[:limit]:
