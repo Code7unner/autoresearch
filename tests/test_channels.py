@@ -70,7 +70,9 @@ class TestChannelSearch:
         from autoresearch.channels.twitter import TwitterChannel
         sample = [{"id": "123", "author": "@alice", "text": "tokio is great for async rust",
                    "time": "Jun 09 16:25"}]
-        monkeypatch.setattr("autoresearch.channels.twitter.subprocess.run",
+        # twitter.search runs through utils.proc.run_with_retry, so patch the
+        # subprocess.run that helper actually calls.
+        monkeypatch.setattr("autoresearch.utils.proc.subprocess.run",
                             lambda cmd, **kw: self._NS(returncode=0, stdout=json.dumps(sample), stderr=""))
         rows = TwitterChannel().search("rust async", 5)
         assert rows[0]["source"] == "twitter"
@@ -85,7 +87,7 @@ class TestChannelSearch:
             captured["cmd"] = cmd
             return self._NS(returncode=0, stdout="[]", stderr="")
 
-        monkeypatch.setattr("autoresearch.channels.twitter.subprocess.run", fake_run)
+        monkeypatch.setattr("autoresearch.utils.proc.subprocess.run", fake_run)
         TwitterChannel().search("-n 9999", 5)
         cmd = captured["cmd"]
         assert "--" in cmd and cmd.index("--") < cmd.index("-n 9999")

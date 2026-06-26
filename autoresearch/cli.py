@@ -146,8 +146,9 @@ def main():
                             help="Comma-separated channels to query (default: all searchable)")
     p_research.add_argument("-n", "--limit", type=_positive_int, default=5,
                             help="Max results per channel, positive int (default: 5)")
-    p_research.add_argument("--timeout", type=_positive_float, default=20.0,
-                            help="Per-channel timeout in seconds, > 0 (default: 20)")
+    p_research.add_argument("--timeout", type=_positive_float, default=45.0,
+                            help="Outer fan-out deadline in seconds, > 0; keep >= the "
+                                 "slowest channel's own timeout (default: 45)")
 
     # ── check-update ──
     sub.add_parser("check-update", help="Check for new versions and changes")

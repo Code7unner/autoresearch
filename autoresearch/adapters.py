@@ -61,11 +61,22 @@ def resolve_research(channels=None):
 
     by_name = {ch.name: ch for ch in get_all_channels()}
     searchable = {name for name, ch in by_name.items() if getattr(ch, "searchable", False)}
-
-    results = check_all(Config())
-    active = {n for n, r in results.items() if r.get("status") == "ok"}
-    known = set(results) | set(by_name)
     requested = [_to_channel_name(c) for c in channels] if channels else None
+
+    if requested is None:
+        # Default run: we need the active set to drop inactive channels. Use the offline
+        # doctor (install/config status, not full network liveness) — a configured-but-
+        # dead session then surfaces as a per-channel error in the fan-out, not a silent
+        # skip. offline=True alone cuts ~20s+ of per-call liveness probing.
+        results = check_all(Config(), offline=True)
+        active = {n for n, r in results.items() if r.get("status") == "ok"}
+        known = set(results) | set(by_name)
+    else:
+        # Explicit --channels: plan_research_channels ignores `active` entirely (it runs
+        # exactly what was asked), so probing doctor here is pure overhead. Skip it and
+        # let any genuinely broken channel report its own error inside the fan-out.
+        active = set()
+        known = set(by_name)
 
     run, skipped, unknown = plan_research_channels(requested, active, searchable, known)
     adapters = {name: by_name[name].search for name in run}

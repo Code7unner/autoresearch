@@ -4,6 +4,28 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [Unreleased]
+
+### 🐛 Bug Fixes — `research` fan-out reliability
+
+- **`research` no longer runs a slow network doctor on every call.** Resolution now
+  skips the doctor probe entirely for explicit `--channels` requests (the active set is
+  unused there) and uses the offline doctor for default runs. An explicit-channel
+  `research` call dropped from ~19.5s to ~4.5s.
+- **Zero-result channels are reported, not silently dropped.** `_meta` now carries
+  `result_counts` (per-channel row counts, including zeros) and `channels_empty`, so a
+  keyword channel that legitimately returns nothing for a long natural-language query is
+  distinguishable from one that errored or was dropped.
+- **Flaky `twitter` searches now retry.** `twitter.search` routes through a new
+  `utils.proc.run_with_retry` (retries on nonzero exit / timeout / OS error with linear
+  backoff), turning transient twitter-cli failures into results instead of empty slots.
+- **Fan-out deadline no longer cuts valid slow channels.** The outer `run_research`
+  timeout defaulted to 20s while per-channel search subprocesses run up to ~45s, so a
+  valid-but-slow channel got killed and mislabeled `TimeoutError`. The default outer
+  deadline is now 45s (>= the slowest per-channel budget).
+
+---
+
 ## [1.3.1] - 2026-03-27
 
 ### 🐛 Bug Fixes
