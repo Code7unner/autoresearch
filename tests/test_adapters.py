@@ -22,7 +22,7 @@ def _patch(monkeypatch, channels, statuses):
     monkeypatch.setattr("autoresearch.channels.get_all_channels", lambda: channels)
     monkeypatch.setattr(
         "autoresearch.doctor.check_all",
-        lambda config: {name: {"status": st} for name, st in statuses.items()},
+        lambda config, offline=False: {name: {"status": st} for name, st in statuses.items()},
     )
 
 
@@ -58,6 +58,25 @@ def test_resolve_flags_unknown_and_nonsearchable(monkeypatch):
 
     assert set(adapters) == {"github"}
     assert unknown == ["bogus", "reddit"]       # reddit known-but-not-searchable
+
+
+def test_resolve_uses_offline_doctor_to_skip_network_probes(monkeypatch):
+    """`research` resolution must call doctor with offline=True — the network
+    liveness probes cost ~20s+ per call and are not needed to pick channels."""
+    captured = {}
+    monkeypatch.setattr(
+        "autoresearch.channels.get_all_channels",
+        lambda: [_FakeChannel("github", True)],
+    )
+
+    def fake_check_all(config, offline=False):
+        captured["offline"] = offline
+        return {"github": {"status": "ok"}}
+
+    monkeypatch.setattr("autoresearch.doctor.check_all", fake_check_all)
+
+    A.resolve_research()
+    assert captured["offline"] is True
 
 
 def test_resolve_accepts_exa_input_alias(monkeypatch):
