@@ -42,6 +42,8 @@ class StackOverflowChannel(Channel):
         return "stackoverflow.com" in urlparse(url).netloc.lower()
 
     def check(self, config=None, offline: bool = False):
+        if offline:
+            return "ok", "Public API, zero-config (--offline: API not probed)"
         try:
             data = _get_json(
                 f"{_API}?{urllib.parse.urlencode({'q': 'test', 'site': 'stackoverflow', 'pagesize': 1})}",

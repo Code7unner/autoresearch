@@ -44,6 +44,10 @@ class GitHubChannel(Channel):
         gh = shutil.which("gh")
         if not gh:
             return "warn", "gh CLI not installed. Install: https://cli.github.com"
+        if offline:
+            # `gh auth status` reaches the network to verify the token; report install
+            # status only when offline.
+            return "ok", "gh CLI installed (--offline: auth not probed)"
         try:
             r = subprocess.run(
                 [gh, "auth", "status"],

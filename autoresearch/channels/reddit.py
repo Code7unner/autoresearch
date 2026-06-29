@@ -67,11 +67,14 @@ class RedditChannel(Channel):
         rdt = shutil.which("rdt")
         if not rdt:
             return "off", (
-                "rdt-cli must be installed (latest v0.4.2+ recommended):\n"
-                "  pip install 'rdt-cli>=0.4.2'\n"
+                # NOTE: do NOT pin `>=0.4.2` here — PyPI's latest is 0.4.1, so the
+                # pinned form is unsatisfiable and `pip install` fails outright. 0.4.1
+                # works for search/status; point at the source for newer builds.
+                "rdt-cli must be installed:\n"
+                "  pip install rdt-cli\n"
                 "or:\n"
                 "  uv tool install rdt-cli\n"
-                "Latest source: https://github.com/public-clis/rdt-cli\n"
+                "For the newest build: https://github.com/public-clis/rdt-cli\n"
                 "After installing, run `rdt login` to log in (log in to reddit.com in your browser first)"
             )
 
@@ -108,5 +111,11 @@ class RedditChannel(Channel):
                 "Verify: `rdt status --json` to confirm authenticated: true"
             )
 
-        except (json.JSONDecodeError, FileNotFoundError, subprocess.TimeoutExpired):
-            return "warn", "rdt-cli installed but status check failed; run `rdt status` to view details"
+        except (ValueError, OSError, subprocess.SubprocessError) as e:
+            # ValueError covers json.JSONDecodeError; OSError covers FileNotFoundError;
+            # SubprocessError covers TimeoutExpired. Surface the failure kind so a
+            # transient post-install hiccup is debuggable rather than a generic warn.
+            return "warn", (
+                f"rdt-cli installed but status check failed ({type(e).__name__}); "
+                "run `rdt status --json` to view details (if you just installed rdt, retry once)"
+            )
