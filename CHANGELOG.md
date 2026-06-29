@@ -23,6 +23,11 @@ All notable changes to this project will be documented in this file.
   timeout defaulted to 20s while per-channel search subprocesses run up to ~45s, so a
   valid-but-slow channel got killed and mislabeled `TimeoutError`. The default outer
   deadline is now 45s (>= the slowest per-channel budget).
+- **`offline=True` now actually skips network probes in the public-API channels.**
+  HackerNews, arXiv, Stack Overflow, Wikipedia, PubMed, Semantic Scholar, V2EX, GitHub,
+  and Bilibili previously accepted the `offline` flag but still hit the network in
+  `check()`. They now report install/config status only when offline. `doctor --offline`
+  and default `research` resolution drop from ~16s to ~0.5s.
 
 ---
 

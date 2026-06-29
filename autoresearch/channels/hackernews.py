@@ -162,6 +162,8 @@ class HackerNewsChannel(Channel):
     # ------------------------------------------------------------------ #
 
     def check(self, config=None, offline: bool = False):
+        if offline:
+            return "ok", "Public API, zero-config (--offline: API not probed)"
         try:
             _get_json(f"{_BASE}/search?query=test&tags=story")
             return "ok", "Public API available (story search, comment threads via Algolia)"

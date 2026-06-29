@@ -42,6 +42,13 @@ class BilibiliChannel(Channel):
         proxy = (config.get("bilibili_proxy") if config else None) or os.environ.get("BILIBILI_PROXY")
         has_bili_cli = bool(shutil.which("bili"))
 
+        if offline:
+            # Skip the Bilibili search-API reachability probe; report install status only.
+            extra = ("Search/trending/rankings: bili-cli available" if has_bili_cli
+                     else "Search: Bilibili API (--offline: not probed)")
+            video = "Video reading: yt-dlp (proxy configured)" if proxy else "Video reading: yt-dlp"
+            return "ok", f"{video}. {extra}"
+
         parts = []
 
         # Video reading status
