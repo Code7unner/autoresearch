@@ -14,6 +14,16 @@ All notable changes to this project will be documented in this file.
   (`tiktok:tag` is broken upstream) — so it does not join the `research` fan-out; agents
   read a shared URL directly. Documented in SKILL.md.
 
+### 🐛 Bug Fixes — Reddit channel
+
+- **Fixed an unsatisfiable install hint.** The Reddit channel told users to
+  `pip install 'rdt-cli>=0.4.2'`, but PyPI's latest is `0.4.1`, so the command failed
+  outright. The hint now recommends `pip install rdt-cli` (0.4.1 works for search/status)
+  and points at the source repo for newer builds; a guard test prevents the pin returning.
+- **More debuggable status-check failures.** When `rdt status --json` can't be parsed the
+  channel now reports the failure kind and suggests retrying (transient post-install
+  hiccups previously surfaced as an opaque "status check failed").
+
 ### 🐛 Bug Fixes — `research` fan-out reliability
 
 - **`research` no longer runs a slow network doctor on every call.** Resolution now

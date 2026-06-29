@@ -1009,6 +1009,10 @@ class TestRedditChannel:
         assert status == "off"
         assert "rdt-cli" in msg
         assert "public-clis/rdt-cli" in msg
+        # Guard: the install command must be satisfiable. PyPI's latest is 0.4.1, so a
+        # `>=0.4.2` pin makes `pip install` fail outright — never reintroduce it.
+        assert ">=0.4.2" not in msg
+        assert "pip install rdt-cli" in msg
 
     def test_reports_ok_when_authenticated(self, monkeypatch):
         monkeypatch.setattr(shutil, "which", lambda _: "/usr/local/bin/rdt")
