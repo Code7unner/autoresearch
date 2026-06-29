@@ -6,6 +6,14 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### ✨ Features
+
+- **New channel: TikTok (read-only).** Reads TikTok video metadata + subtitles and a
+  user's video list via yt-dlp (`channels/tiktok.py`), bringing the registered total to
+  23. It is intentionally not `searchable` — yt-dlp has no working TikTok keyword search
+  (`tiktok:tag` is broken upstream) — so it does not join the `research` fan-out; agents
+  read a shared URL directly. Documented in SKILL.md.
+
 ### 🐛 Bug Fixes — `research` fan-out reliability
 
 - **`research` no longer runs a slow network doctor on every call.** Resolution now

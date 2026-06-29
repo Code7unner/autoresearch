@@ -2,8 +2,8 @@
 name: autoresearch
 description: >
   Give your AI agent eyes to see the entire internet.
-  Search and read 22 platforms: Twitter/X, Reddit, Hacker News, YouTube, GitHub, Bilibili,
-  XiaoHongShu, Douyin, Weibo, WeChat Articles, Xiaoyuzhou Podcast, LinkedIn,
+  Search and read 23 platforms: Twitter/X, Reddit, Hacker News, YouTube, GitHub, Bilibili,
+  XiaoHongShu, Douyin, TikTok, Weibo, WeChat Articles, Xiaoyuzhou Podcast, LinkedIn,
   V2EX, Xueqiu, arXiv, Stack Overflow, Wikipedia, Semantic Scholar, PubMed,
   RSS, Exa web search, and any web page.
   Zero config for 8 channels. Use when the user asks to search, read, or interact
@@ -21,7 +21,7 @@ metadata:
 
 # autoresearch — Usage Guide
 
-Upstream tools for 22 platforms. Call them directly.
+Upstream tools for 23 platforms. Call them directly.
 
 Run `autoresearch doctor` to check which channels are available.
 
@@ -159,6 +159,20 @@ mcporter call 'douyin.get_douyin_download_link(share_link: "https://v.douyin.com
 ```
 
 > No login needed.
+
+## TikTok (yt-dlp)
+
+```bash
+yt-dlp --dump-json "https://www.tiktok.com/@user/video/ID"   # video metadata
+yt-dlp --write-sub --write-auto-sub --skip-download -o "/tmp/%(id)s" "URL"
+                                                             # subtitles, then read the .vtt
+yt-dlp --flat-playlist -J "https://www.tiktok.com/@username"  # a user's recent videos
+```
+
+> Read-only: yt-dlp has no working TikTok keyword search (`tiktok:tag` is broken
+> upstream), so TikTok does not join `autoresearch research`. Share a video/profile
+> URL and read it directly. Some videos are region-gated — configure a proxy or
+> `--cookies-from-browser chrome` if a fetch fails.
 
 ## WeChat Articles
 
